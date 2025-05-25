@@ -10,7 +10,7 @@ public class ViewController {
 
     @GetMapping("generate/code")
     public String generateCode(){
-        return "/generate_code";
+        return "/html/generate_code";
     }
 
     @GetMapping("index")

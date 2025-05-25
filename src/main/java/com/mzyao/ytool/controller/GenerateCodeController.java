@@ -1,7 +1,5 @@
 package com.mzyao.ytool.controller;
 
-import cn.hutool.json.JSONUtil;
-import com.mzyao.ytool.common.Result;
 import com.mzyao.ytool.entity.dto.CodeGenerateRequest;
 import com.mzyao.ytool.entity.dto.DbConfigRequest;
 import com.mzyao.ytool.entity.vo.ColumnInfo;
@@ -9,8 +7,6 @@ import com.mzyao.ytool.entity.vo.TableInfo;
 import com.mzyao.ytool.enums.JavaType;
 import com.mzyao.ytool.service.GenerateCodeService;
 import com.mzyao.ytool.utils.ZipUtil;
-import freemarker.template.Configuration;
-import org.apache.ibatis.javassist.compiler.ast.Variable;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;

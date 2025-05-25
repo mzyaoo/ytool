@@ -1,4 +1,4 @@
-package ${package}.controller;
+package ${package};
 
 import ${package}.entity.${className};
 import ${package}.service.${className}Service;
