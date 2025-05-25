@@ -13,4 +13,9 @@ public class ViewController {
         return "/generate_code";
     }
 
+    @GetMapping("index")
+    public String layout(){
+        return "/html/layout/index";
+    }
+
 }
