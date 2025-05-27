@@ -10,8 +10,8 @@ new Vue({
         },
         genConfigInfo: {
             packagePath: 'com/example/project',
-            openLombok: "yes",
-            openSwagger: "yes",
+            openLombok: "no",
+            openSwagger: "no",
             dal: "Mybatis",
             entityName:"entity",
             mapperName:"mapper",

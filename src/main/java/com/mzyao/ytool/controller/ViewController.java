@@ -9,13 +9,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class ViewController {
 
     @GetMapping("generate/code")
-    public String generateCode(){
+    public String generateCode() {
         return "/html/generate_code";
     }
 
     @GetMapping("index")
-    public String layout(){
+    public String layout() {
         return "/html/layout/index";
+    }
+
+    @GetMapping("ddl/generate")
+    public String ddlHtml() {
+        return "/html/ddl/index";
     }
 
 }

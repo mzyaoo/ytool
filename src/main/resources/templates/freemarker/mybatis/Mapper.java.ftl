@@ -10,14 +10,14 @@ import java.util.List;
 @Mapper
 public interface ${className}Mapper {
 
-int insert(${className} record);
+    int insert(${className} record);
 
-${className} selectById(@Param("id") ${idField.javaType} id);
+    ${className} selectById(@Param("id") ${idField.javaType} id);
 
-List<${className}> selectAll();
+    List<${className}> selectAll();
 
-int updateById(${className} record);
+    int updateById(${className} record);
 
-int deleteById(@Param("id") ${idField.javaType} id);
+    int deleteById(@Param("id") ${idField.javaType} id);
 
 }

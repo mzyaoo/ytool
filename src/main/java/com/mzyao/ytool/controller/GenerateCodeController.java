@@ -1,5 +1,6 @@
 package com.mzyao.ytool.controller;
 
+import com.mzyao.ytool.aop.annotations.Log;
 import com.mzyao.ytool.entity.dto.CodeGenerateRequest;
 import com.mzyao.ytool.entity.dto.DbConfigRequest;
 import com.mzyao.ytool.entity.vo.ColumnInfo;
@@ -29,6 +30,7 @@ public class GenerateCodeController {
      * @param config
      * @return
      */
+    @Log
     @GetMapping("table/list")
     public List<TableInfo> getTables(DbConfigRequest config) throws Exception {
         return generateCodeService.getTables(config);
@@ -42,6 +44,7 @@ public class GenerateCodeController {
      * @param tableName
      * @return
      */
+    @Log
     @GetMapping("table/columns")
     public List<ColumnInfo> listColumns(DbConfigRequest config,
                                         String tableName) throws Exception {
@@ -53,6 +56,7 @@ public class GenerateCodeController {
      *
      * @return
      */
+    @Log
     @PostMapping("code")
     public void generateCode(@RequestBody CodeGenerateRequest codeGenerateRequest,
                              HttpServletResponse response,
@@ -66,13 +70,10 @@ public class GenerateCodeController {
      *
      * @return
      */
+    @Log
     @GetMapping("tool/java/type")
     public List<String> getJavaTypeList() {
         return JavaType.getTypeList();
-    }
-
-    public static void main(String[] args) {
-
     }
 
 }
