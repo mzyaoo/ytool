@@ -4,30 +4,113 @@
     <meta charset="UTF-8">
     <title>ddl语法转Java代码</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- 引入样式 -->
+    <!-- 样式引入 -->
     <link rel="stylesheet" th:href="@{/utils/elementui/theme-chalk/index.css}">
     <link rel="stylesheet" th:href="@{/css/ddl/index.css}">
+    <link rel="stylesheet" th:href="@{/utils/codemirror/index.css}">
+    <link rel="stylesheet" th:href="@{/utils/codemirror/theme/eclipse.css}">
+    <link rel="stylesheet" th:href="@{/utils/codemirror/hint/show-hint.css}">
 
 </head>
 <body>
 <div id="app" v-cloak>
+    <el-row :gutter="20" style="height: calc(100vh - 40px);">
+        <el-col :span="12" style="height: 100%;">
+            <div id="code-wrapper">
+                <textarea id="code" v-model="ddlText"></textarea>
+            </div>
+        </el-col>
+        <el-col :span="12">
+            <div>
+                <el-form ref="form" :model="form" :label-position="labelPosition" label-width="130px">
+                    <el-form-item label="包路径">
+                        <el-input v-model="form.packageUrl"></el-input>
+                    </el-form-item>
+                    <el-form-item label="是否需要注释：">
+                        <el-radio-group v-model="form.openComments">
+                            <el-radio label="是"></el-radio>
+                            <el-radio label="否"></el-radio>
+                        </el-radio-group>
+                    </el-form-item>
+                    <el-form-item label="中间件">
+                        <el-radio-group v-model="form.type">
+                            <el-radio label="MyBatis"></el-radio>
+                            <el-radio label="Mybatis-Plus"></el-radio>
+                            <el-radio label="JPA"></el-radio>
+                            <el-radio label="Service"></el-radio>
+                            <el-radio label="Controller"></el-radio>
+                            <el-radio label="XML"></el-radio>
+                        </el-radio-group>
+                    </el-form-item>
 
+                    <el-form-item>
+                        <el-button type="primary" @click="onSubmit">立即创建</el-button>
+                        <el-button>取消</el-button>
+                    </el-form-item>
+                </el-form>
+            </div>
+        </el-col>
+    </el-row>
 </div>
-</body>
 
+<!-- JS 引入 -->
 <script th:src="@{/utils/jQuery3.6.0.min.js}"></script>
 <script th:src="@{/utils/vue2.7.16.min.js}"></script>
 <script th:src="@{/utils/elementui/ele-lib-index.js}"></script>
+<script th:src="@{/utils/codemirror/index.js}"></script>
+<script th:src="@{/utils/codemirror/mode/sql.js}"></script>
+<script th:src="@{/utils/codemirror/hint/show-hint.js}"></script>
+<script th:src="@{/utils/codemirror/hint/sql-hint.js}"></script>
+
 <script>
+    let editor;
+
     new Vue({
         el: '#app',
         data() {
             return {
+                labelPosition: 'top',
                 ddlText: '',
-                javaCode: ''
+                javaCode: '',
+                form: {
+                    name: '',
+                    region: '',
+                    date1: '',
+                    date2: '',
+                    delivery: false,
+                    type: [],
+                    resource: '',
+                    desc: ''
+                }
             };
         },
-        methods: {}
+        mounted() {
+            // 初始化 CodeMirror
+            editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+                mode: "text/x-sql",
+                theme: "eclipse",
+                lineNumbers: true,
+                extraKeys: {
+                    "Ctrl-Space": "autocomplete"
+                }
+            });
+
+            // 让编辑器高度自适应父容器
+            editor.setSize("100%", "100%");
+
+            // 输入时自动触发 SQL 提示
+            editor.on("inputRead", function (cm, change) {
+                if (change.text[0].match(/[\w\.]/)) {
+                    cm.showHint({hint: CodeMirror.hint.sql});
+                }
+            });
+        },
+        methods: {
+            onSubmit() {
+                console.log('submit!');
+            }
+        }
     });
 </script>
+</body>
 </html>
