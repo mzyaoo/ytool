@@ -5,10 +5,10 @@ FROM openjdk:8-jre-alpine
 WORKDIR /app
 
 # 复制你构建好的 jar 包到容器中（注意修改文件名为实际 jar 包名）
-COPY target/code-generator.jar app.jar
+COPY target/ytool.jar ytool.jar
 
 # 暴露应用端口（根据你项目设置）
 EXPOSE 8080
 
 # 启动应用
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-jar", "ytool.jar"]
