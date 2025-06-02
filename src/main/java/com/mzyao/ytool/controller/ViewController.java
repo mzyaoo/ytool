@@ -41,5 +41,20 @@ public class ViewController {
         return "/html/layout/index";
     }
 
+    @GetMapping("404")
+    public String notfound() {
+        return "/html/404/index";
+    }
+
+    @GetMapping("error")
+    public String error() {
+        return "/html/error/index";
+    }
+
+    @GetMapping("start")
+    public String start() {
+        return "/html/start";
+    }
+
 
 }

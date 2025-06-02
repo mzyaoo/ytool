@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>顶部菜单带Logo</title>
+    <title>公共布局</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" th:href="@{/utils/elementui/theme-chalk/index.css}">
     <link rel="stylesheet" th:href="@{/css/layout/index.css}">
@@ -72,8 +72,8 @@
         el: '#app',
         data() {
             return {
-                activeMenu: '/admin/user',
-                iframeSrc: '/admin/user'
+                activeMenu: '',
+                iframeSrc: ''
             }
         },
         methods: {
