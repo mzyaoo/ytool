@@ -1,6 +1,5 @@
 package com.mzyao.ytool.config;
 
-
 import freemarker.template.Configuration;
 import org.springframework.context.annotation.Bean;
 
