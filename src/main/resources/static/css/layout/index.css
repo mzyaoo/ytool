@@ -9,23 +9,13 @@ html, body, #app {
 }
 
 .el-header {
-    background-color: #409EFF;
-    padding: 0;
     display: flex;
     align-items: center;
+    background-color: #fff;
+    border-bottom: 1px solid #eaeaea;
+    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, .05);
 }
 
-.logo-area {
-    /*width: 200px;*/
-    /*height: 60px;*/
-    /*display: flex;*/
-    /*align-items: center;*/
-    /*justify-content: center;*/
-    /*background-color: #357ec6;*/
-    /*color: #fff;*/
-    /*font-size: 18px;*/
-    /*font-weight: bold;*/
-}
 
 .el-main {
     padding: 0;
@@ -52,4 +42,50 @@ html, body, #app {
 
 .el-menu--horizontal > .el-menu-item.is-active {
     background-color: #66b1ff;
+}
+
+.logo-area {
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    font-size: 18px;
+}
+
+.logo-area .iconfont {
+    font-size: 22px;
+    margin-right: 8px;
+    color: #409EFF;
+}
+
+.logo-text {
+    font-weight: bold;
+    color: #333;
+}
+
+.el-menu {
+    border-bottom: none;
+}
+
+.el-menu-item, .el-submenu__title {
+    padding: 0 20px;
+    font-size: 14px;
+}
+
+.el-menu-item:hover,
+.el-submenu__title:hover {
+    background-color: #f5f7fa !important;
+}
+
+/* 去除子菜单 hover 蓝底 */
+.el-menu--horizontal > .el-submenu.is-active .el-submenu__title,
+.el-menu--horizontal > .el-submenu .el-submenu__title:hover {
+    background-color: #f5f7fa !important;
+    color: #409EFF !important; /* 保留文字高亮（可根据需要调整） */
+}
+
+
+.menu-icon {
+    margin-right: 6px;
+    font-size: 16px;
+    color: #666;
 }

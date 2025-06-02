@@ -1,6 +1,6 @@
 @font-face {
   font-family: "iconfont"; /* Project id  */
-  src: url('iconfont.ttf?t=1748774859648') format('truetype');
+  src: url('iconfont.ttf?t=1748843344851') format('truetype');
 }
 
 .iconfont {
@@ -13,5 +13,9 @@
 
 .icon-copy:before {
   content: "\e839";
+}
+
+.icon-kaifagongju:before {
+  content: "\e7c5";
 }
 
