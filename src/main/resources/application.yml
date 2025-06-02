@@ -1,2 +1,6 @@
 server:
   port: 20019
+
+spring:
+  profiles:
+    active: dev

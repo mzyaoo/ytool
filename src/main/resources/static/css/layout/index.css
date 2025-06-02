@@ -1,0 +1,55 @@
+html, body, #app {
+    height: 100%;
+    margin: 0;
+}
+
+.el-container {
+    height: 100%;
+    flex-direction: column;
+}
+
+.el-header {
+    background-color: #409EFF;
+    padding: 0;
+    display: flex;
+    align-items: center;
+}
+
+.logo-area {
+    /*width: 200px;*/
+    /*height: 60px;*/
+    /*display: flex;*/
+    /*align-items: center;*/
+    /*justify-content: center;*/
+    /*background-color: #357ec6;*/
+    /*color: #fff;*/
+    /*font-size: 18px;*/
+    /*font-weight: bold;*/
+}
+
+.el-main {
+    padding: 0;
+    flex: 1;
+    overflow: hidden;
+}
+
+.main-iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+}
+
+.el-menu--horizontal {
+    background-color: #409EFF;
+    border-bottom: none;
+    flex: 1;
+}
+
+.el-menu--horizontal > .el-menu-item {
+    color: white;
+}
+
+.el-menu--horizontal > .el-menu-item.is-active {
+    background-color: #66b1ff;
+}
