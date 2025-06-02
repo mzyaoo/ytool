@@ -38,6 +38,16 @@ public class ViewController {
     public String layout(Model model) {
         List<SysMenu> menuTree = sysMenuService.getVisibleMenuTree();
         model.addAttribute("menus", menuTree);
+
+        // 找到第一个显示的菜单 path
+        String defaultMenuPath = menuTree.stream()
+                .filter(m -> m.getVisible() == 1)
+                .findFirst()
+                .map(SysMenu::getPath)
+                .orElse("");
+
+        model.addAttribute("defaultMenuPath", defaultMenuPath);
+
         return "/html/layout/index";
     }
 

@@ -67,19 +67,25 @@
 <script th:src="@{/utils/jQuery3.6.0.min.js}"></script>
 <script th:src="@{/utils/vue2.7.16.min.js}"></script>
 <script th:src="@{/utils/elementui/ele-lib-index.js}"></script>
-<script>
+<script th:inline="javascript">
     new Vue({
         el: '#app',
         data() {
             return {
-                activeMenu: '',
-                iframeSrc: ''
+                activeMenu: [[${defaultMenuPath}]],
+                iframeSrc: [[${defaultMenuPath}]]
             }
+        },
+        mounted() {
+            this.init();
         },
         methods: {
             handleMenuSelect(path) {
                 this.iframeSrc = path;
                 this.activeMenu = path;
+            },
+            init() {
+                console.log("加载布局页面。。。。。")
             }
         }
     })
