@@ -66,5 +66,10 @@ public class ViewController {
         return "/html/start";
     }
 
+    @GetMapping("demo/file/tree")
+    public String demo(){
+        return "html/demo/file-tree";
+    }
+
 
 }

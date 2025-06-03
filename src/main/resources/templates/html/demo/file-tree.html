@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>文件树 + 文件预览</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        body {
+            display: flex;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        .sidebar {
+            width: 300px;
+            border-right: 1px solid #ccc;
+            padding: 10px;
+            overflow-y: auto;
+        }
+
+        .preview {
+            flex: 1;
+            padding: 20px;
+            background-color: #f9f9f9;
+            white-space: pre-wrap;
+            overflow: auto;
+        }
+
+        ul.file-tree {
+            list-style: none;
+            padding-left: 20px;
+        }
+
+        .file-tree li {
+            line-height: 1.8em;
+            cursor: pointer;
+        }
+
+        .folder::before {
+            content: "\f07b";
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            margin-right: 8px;
+            color: #f7c948;
+        }
+
+        .java::before {
+            content: "\f1c9";
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            margin-right: 8px;
+            color: #dd4b39;
+        }
+
+        .xml::before {
+            content: "\f1c9";
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            margin-right: 8px;
+            color: #3c8dbc;
+        }
+
+        .nested {
+            display: none;
+            padding-left: 20px;
+        }
+
+        .active > .nested {
+            display: block;
+        }
+
+        .selected {
+            background-color: #e0e0e0;
+        }
+    </style>
+</head>
+<body>
+
+<div class="sidebar">
+    <ul class="file-tree">
+        <li class="folder">src
+            <ul class="nested">
+                <li class="folder">main
+                    <ul class="nested">
+                        <li class="folder">java
+                            <ul class="nested">
+                                <li class="java" data-content="public class App {\n  public static void main(String[] args) {\n    System.out.println(&quot;Hello, World!&quot;);\n  }\n}">App.java</li>
+                                <li class="java" data-content="public class Service {\n  public void execute() {\n    // TODO: service logic\n  }\n}">Service.java</li>
+                            </ul>
+                        </li>
+                        <li class="folder">resources
+                            <ul class="nested">
+                                <li class="xml" data-content="&lt;application&gt;\n  &lt;name&gt;MyApp&lt;/name&gt;\n&lt;/application&gt;">application.xml</li>
+                                <li class="xml" data-content="&lt;config&gt;\n  &lt;setting key=&quot;env&quot;&gt;prod&lt;/setting&gt;\n&lt;/config&gt;">config.xml</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+                <li class="folder">test
+                    <ul class="nested">
+                        <li class="java" data-content="public class AppTest {\n  public void testMain() {\n    assert true;\n  }\n}">AppTest.java</li>
+                    </ul>
+                </li>
+            </ul>
+        </li>
+    </ul>
+</div>
+
+<div class="preview" id="preview">
+    点击左侧文件查看内容
+</div>
+
+<script>
+    // 展开/折叠目录
+    document.querySelectorAll(".file-tree .folder").forEach(folder => {
+        folder.addEventListener("click", function (e) {
+            e.stopPropagation();
+            this.classList.toggle("active");
+        });
+    });
+
+    // 预览文件
+    document.querySelectorAll(".file-tree .java, .file-tree .xml").forEach(file => {
+        file.addEventListener("click", function (e) {
+            e.stopPropagation();
+            // 清除其他选中状态
+            document.querySelectorAll(".file-tree li").forEach(li => li.classList.remove("selected"));
+            this.classList.add("selected");
+
+            const content = this.getAttribute("data-content");
+            document.getElementById("preview").innerHTML = content.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        });
+    });
+</script>
+
+</body>
+</html>
