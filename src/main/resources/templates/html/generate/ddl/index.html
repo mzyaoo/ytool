@@ -11,9 +11,9 @@
     <link rel="stylesheet" th:href="@{/utils/codemirror/theme/eclipse.css}">
     <link rel="stylesheet" th:href="@{/utils/codemirror/hint/show-hint.css}">
     <link rel="stylesheet" th:href="@{/utils/icon/iconfont.css}">
-
 </head>
 <body>
+
 
 <div id="app" v-cloak>
     <el-row type="flex" justify="center" align="middle" style="background-color: #fff; padding: 40px 20px;">
@@ -27,7 +27,7 @@
                     通过建表SQL语句生成 JPA / JdbcTemplate / Mybatis / MybatisPlus 等相关代码
                 </p>
                 <div style="margin-top: 30px;display: flex;justify-content: center">
-                    <el-button type="danger" size="medium">立即生成</el-button>
+                    <el-button type="danger" size="medium" @click="genHandler">立即生成</el-button>
                 </div>
             </div>
         </el-col>
@@ -36,23 +36,33 @@
                  style="max-width: 40%; height: auto;">
         </el-col>
     </el-row>
-    <el-row :gutter="20" style="height: calc(100vh - 40px);">
-        <el-col :span="12" style="height: 100%;">
-            <div class="title">DDL建表语句</div>
-            <div class="ddl-code-wrapper">
-                <textarea id="code" v-model="ddlText"></textarea>
-            </div>
-        </el-col>
-        <el-col :span="12" style="height: 100%;">
-            <div class="title">生成结果</div>
-            <div class="java-code-wrapper">
-                <button class="copy-btn" id="copyBtn">
-                    <i class="iconfont icon-copy"></i> 复制
-                </button>
-                <textarea id="javaCode" v-model="javaCode"></textarea>
-            </div>
-        </el-col>
-    </el-row>
+    <div style="margin: 0 40px">
+        <el-row :gutter="20" style="height: calc(100vh - 40px);">
+            <el-col :span="12" style="height: 100%;">
+                <div class="title">DDL建表语句</div>
+                <div class="ddl-code-wrapper">
+                    <textarea id="code" v-model="ddlText"></textarea>
+                </div>
+            </el-col>
+            <el-col :span="12" style="height: 100%;">
+                <div class="title">生成结果</div>
+                <el-row :gutter="20" style="height: calc(100vh - 40px);">
+                    <el-col :span="10" style="height: 100%; overflow: auto">
+                        <!-- 文件树容器 -->
+                    </el-col>
+                    <el-col :span="14" style="height: 100%;">
+                        <div class="java-code-wrapper">
+                            <button class="copy-btn" id="copyBtn">
+                                <i class="iconfont icon-copy"></i> 复制
+                            </button>
+                            <textarea id="javaCode" v-model="javaCode"></textarea>
+                        </div>
+                    </el-col>
+                </el-row>
+            </el-col>
+        </el-row>
+    </div>
+
 
     <el-drawer
             title="配置项信息"
@@ -120,6 +130,7 @@
 <script th:src="@{/utils/codemirror/hint/sql-hint.js}"></script>
 
 <script>
+
     let editor;
 
     let javaCodeEditor;
@@ -142,7 +153,7 @@
                     type: [],
                     resource: '',
                     desc: ''
-                }
+                },
             };
         },
         mounted() {
@@ -150,12 +161,12 @@
             this.ddlEditorInit();
             // 初始化java编辑插件
             this.javaCodeEditorInit();
+
         },
         methods: {
             onSubmit() {
                 console.log('submit!');
             },
-
             codeChange(val) {
                 if (val.includes("xml")) {
                     this.codeEditMode = "application/xml";
@@ -212,7 +223,7 @@
                         cm.showHint({hint: CodeMirror.hint.sql});
                     }
                 });
-            }
+            },
         }
     });
 </script>

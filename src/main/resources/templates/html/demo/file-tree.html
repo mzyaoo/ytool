@@ -1,138 +1,185 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>文件树 + 文件预览</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <title>自定义文件树示例</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Font Awesome 图标 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <!-- CodeMirror -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.12/codemirror.min.css">
     <style>
         body {
-            display: flex;
-            height: 100vh;
             margin: 0;
             font-family: Arial, sans-serif;
         }
-
-        .sidebar {
-            width: 300px;
-            border-right: 1px solid #ccc;
-            padding: 10px;
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+        .left-panel {
+            width: 30%;
+            border-right: 1px solid #ddd;
             overflow-y: auto;
+            padding: 10px;
         }
-
-        .preview {
-            flex: 1;
-            padding: 20px;
-            background-color: #f9f9f9;
-            white-space: pre-wrap;
-            overflow: auto;
+        .right-panel {
+            width: 70%;
+            padding: 10px;
         }
-
-        ul.file-tree {
+        ul {
             list-style: none;
             padding-left: 20px;
         }
-
-        .file-tree li {
-            line-height: 1.8em;
+        li > div {
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            padding: 4px 0;
         }
-
-        .folder::before {
-            content: "\f07b";
-            font-family: "Font Awesome 6 Free";
-            font-weight: 900;
+        i {
             margin-right: 8px;
-            color: #f7c948;
         }
-
-        .java::before {
-            content: "\f1c9";
-            font-family: "Font Awesome 6 Free";
-            font-weight: 900;
-            margin-right: 8px;
-            color: #dd4b39;
-        }
-
-        .xml::before {
-            content: "\f1c9";
-            font-family: "Font Awesome 6 Free";
-            font-weight: 900;
-            margin-right: 8px;
-            color: #3c8dbc;
-        }
-
-        .nested {
-            display: none;
-            padding-left: 20px;
-        }
-
-        .active > .nested {
-            display: block;
-        }
-
         .selected {
-            background-color: #e0e0e0;
+            background-color: #eef;
         }
     </style>
 </head>
 <body>
 
-<div class="sidebar">
-    <ul class="file-tree">
-        <li class="folder">src
-            <ul class="nested">
-                <li class="folder">main
-                    <ul class="nested">
-                        <li class="folder">java
-                            <ul class="nested">
-                                <li class="java" data-content="public class App {\n  public static void main(String[] args) {\n    System.out.println(&quot;Hello, World!&quot;);\n  }\n}">App.java</li>
-                                <li class="java" data-content="public class Service {\n  public void execute() {\n    // TODO: service logic\n  }\n}">Service.java</li>
-                            </ul>
-                        </li>
-                        <li class="folder">resources
-                            <ul class="nested">
-                                <li class="xml" data-content="&lt;application&gt;\n  &lt;name&gt;MyApp&lt;/name&gt;\n&lt;/application&gt;">application.xml</li>
-                                <li class="xml" data-content="&lt;config&gt;\n  &lt;setting key=&quot;env&quot;&gt;prod&lt;/setting&gt;\n&lt;/config&gt;">config.xml</li>
-                            </ul>
-                        </li>
-                    </ul>
-                </li>
-                <li class="folder">test
-                    <ul class="nested">
-                        <li class="java" data-content="public class AppTest {\n  public void testMain() {\n    assert true;\n  }\n}">AppTest.java</li>
-                    </ul>
-                </li>
-            </ul>
-        </li>
-    </ul>
+<div id="app" class="container">
+    <div class="left-panel">
+        <ul>
+            <tree-node
+                    v-for="node in fileTree"
+                    :key="node.id"
+                    :node="node"
+                    @file-click="handleFileClick"
+            />
+        </ul>
+    </div>
+    <div class="right-panel">
+        <textarea id="javaCode" v-model="javaCode"></textarea>
+    </div>
 </div>
 
-<div class="preview" id="preview">
-    点击左侧文件查看内容
-</div>
+<!-- Vue -->
+<script src="https://cdn.jsdelivr.net/npm/vue@2.7.16/dist/vue.min.js"></script>
+<!-- CodeMirror -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.12/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.12/mode/clike/clike.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.12/mode/xml/xml.min.js"></script>
 
 <script>
-    // 展开/折叠目录
-    document.querySelectorAll(".file-tree .folder").forEach(folder => {
-        folder.addEventListener("click", function (e) {
-            e.stopPropagation();
-            this.classList.toggle("active");
-        });
+    Vue.component('tree-node', {
+        props: ['node'],
+        methods: {
+            toggle() {
+                if (this.node.type === 'folder') {
+                    this.node.open = !this.node.open;
+                } else {
+                    this.$emit('file-click', this.node);
+                }
+            }
+        },
+        template: `
+    <li>
+      <div @click="toggle" :class="{ selected: node.selected }">
+        <i :class="node.type === 'folder'
+            ? (node.open ? 'fa-solid fa-folder-open' : 'fa-solid fa-folder')
+            : 'fa-regular fa-file'"></i>
+        {{ node.label }}
+      </div>
+      <ul v-if="node.children && node.children.length" v-show="node.open">
+        <tree-node
+          v-for="child in node.children"
+          :key="child.id"
+          :node="child"
+          @file-click="$emit('file-click', $event)"
+        />
+      </ul>
+    </li>
+  `
     });
 
-    // 预览文件
-    document.querySelectorAll(".file-tree .java, .file-tree .xml").forEach(file => {
-        file.addEventListener("click", function (e) {
-            e.stopPropagation();
-            // 清除其他选中状态
-            document.querySelectorAll(".file-tree li").forEach(li => li.classList.remove("selected"));
-            this.classList.add("selected");
+    new Vue({
+        el: '#app',
+        data() {
+            return {
+                fileTree: [],
+                javaCode: '',
+                editor: null
+            };
+        },
+        mounted() {
+            this.initEditor();
+            // 模拟后端返回数据
+            const response = [
+                { path: 'com/example/entity/User.java', content: '// User.java content\npublic class User {}' },
+                { path: 'com/example/mapper/UserMapper.java', content: '// Mapper.java content\ninterface UserMapper {}' },
+                { path: 'com/example/mapper/UserMapper.xml', content: '<!-- XML content -->\n<mapper></mapper>' }
+            ];
+            this.fileTree = this.buildTree(response);
+        },
+        methods: {
+            initEditor() {
+                this.editor = CodeMirror.fromTextArea(document.getElementById("javaCode"), {
+                    mode: "text/x-java",
+                    theme: "default",
+                    lineNumbers: true,
+                    readOnly: true
+                });
+                this.editor.setSize("100%", "100%");
+            },
+            handleFileClick(fileNode) {
+                this.clearSelection(this.fileTree);
+                fileNode.selected = true;
+                this.javaCode = fileNode.content;
 
-            const content = this.getAttribute("data-content");
-            document.getElementById("preview").innerHTML = content.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-        });
+                const ext = fileNode.label.split('.').pop();
+                const mode = ext === 'xml' ? 'application/xml' : 'text/x-java';
+                this.editor.setOption("mode", mode);
+                this.editor.setValue(fileNode.content);
+            },
+            clearSelection(nodes) {
+                nodes.forEach(node => {
+                    node.selected = false;
+                    if (node.children) this.clearSelection(node.children);
+                });
+            },
+            buildTree(data) {
+                const tree = [];
+                const map = {};
+
+                data.forEach(file => {
+                    const parts = file.path.split('/');
+                    let current = tree;
+
+                    parts.forEach((part, index) => {
+                        const pathSoFar = parts.slice(0, index + 1).join('/');
+                        if (!map[pathSoFar]) {
+                            const isFile = index === parts.length - 1;
+                            const node = {
+                                id: pathSoFar,
+                                label: part,
+                                type: isFile ? 'file' : 'folder',
+                                open: false,
+                                selected: false,
+                                children: [],
+                                ...(isFile ? { content: file.content } : {})
+                            };
+                            map[pathSoFar] = node;
+                            current.push(node);
+                        }
+                        current = map[pathSoFar].children;
+                    });
+                });
+
+                return tree;
+            }
+        }
     });
 </script>
-
 </body>
 </html>
