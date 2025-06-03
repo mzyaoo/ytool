@@ -89,6 +89,21 @@ html, body {
 }
 
 /*文件树*/
-
+ul {
+    list-style: none;
+    padding-left: 20px;
+}
+li > div {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    padding: 4px 0;
+}
+i {
+    margin-right: 8px;
+}
+.selected {
+    background-color: #eef;
+}
 
 

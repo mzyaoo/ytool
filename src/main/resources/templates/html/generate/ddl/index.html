@@ -11,6 +11,8 @@
     <link rel="stylesheet" th:href="@{/utils/codemirror/theme/eclipse.css}">
     <link rel="stylesheet" th:href="@{/utils/codemirror/hint/show-hint.css}">
     <link rel="stylesheet" th:href="@{/utils/icon/iconfont.css}">
+    <!-- Font Awesome 图标 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 </head>
 <body>
 
@@ -27,7 +29,7 @@
                     通过建表SQL语句生成 JPA / JdbcTemplate / Mybatis / MybatisPlus 等相关代码
                 </p>
                 <div style="margin-top: 30px;display: flex;justify-content: center">
-                    <el-button type="danger" size="medium" @click="genHandler">立即生成</el-button>
+                    <el-button type="danger" size="medium" @click="generateHandler">立即生成</el-button>
                 </div>
             </div>
         </el-col>
@@ -49,13 +51,31 @@
                 <el-row :gutter="20" style="height: calc(100vh - 40px);">
                     <el-col :span="10" style="height: 100%; overflow: auto">
                         <!-- 文件树容器 -->
+                        <ul>
+                            <template v-for="node in fileTree">
+                                <li>
+                                    <div :class="{ selected: node.selected }" @click="toggle(node)">
+                                        <i :class="node.type === 'folder'
+                            ? (node.open ? 'fa-solid fa-folder-open' : 'fa-solid fa-folder')
+                            : 'fa-regular fa-file'"></i>
+                                        {{ node.label }}
+                                    </div>
+                                    <ul v-if="node.children && node.children.length" v-show="node.open">
+                                        <template v-for="child in node.children">
+                                            <tree-branch :node="child" :key="child.id"
+                                                         @file-click="handleFileClick"></tree-branch>
+                                        </template>
+                                    </ul>
+                                </li>
+                            </template>
+                        </ul>
                     </el-col>
                     <el-col :span="14" style="height: 100%;">
                         <div class="java-code-wrapper">
-                            <button class="copy-btn" id="copyBtn">
+                            <button class="copy-btn" id="copyBtn" @click="copyCode">
                                 <i class="iconfont icon-copy"></i> 复制
                             </button>
-                            <textarea id="javaCode" v-model="javaCode"></textarea>
+                            <textarea id="javaCode" v-model="javaCode" readonly></textarea>
                         </div>
                     </el-col>
                 </el-row>
@@ -130,15 +150,46 @@
 <script th:src="@{/utils/codemirror/hint/sql-hint.js}"></script>
 
 <script>
+    // 手动注册 tree-branch，不作为单文件组件，只是渲染子节点（非递归组件）
+    Vue.component('tree-branch', {
+        props: ['node'],
+        methods: {
+            toggle(node) {
+                if (node.type === 'folder') {
+                    node.open = !node.open;
+                } else {
+                    this.$emit('file-click', node);
+                }
+            }
+        },
+        template: `
+            <li>
+                <div :class="{ selected: node.selected }" @click="toggle(node)">
+                    <i :class="node.type === 'folder'
+                        ? (node.open ? 'fa-solid fa-folder-open' : 'fa-solid fa-folder')
+                        : 'fa-regular fa-file'"></i>
+                    {{ node.label }}
+                </div>
+                <ul v-if="node.children && node.children.length" v-show="node.open">
+                    <tree-branch
+                        v-for="child in node.children"
+                        :key="child.id"
+                        :node="child"
+                        @file-click="$emit('file-click', $event)"
+                    ></tree-branch>
+                </ul>
+            </li>
+        `
+    });
+</script>
 
-    let editor;
-
-    let javaCodeEditor;
-
+<script>
     new Vue({
         el: '#app',
         data() {
             return {
+                ddlEditor: null,
+                javaCodeEditor: null,
                 ddlText: '',
                 javaCode: '',
                 drawer: false,
@@ -154,6 +205,7 @@
                     resource: '',
                     desc: ''
                 },
+                fileTree: [],
             };
         },
         mounted() {
@@ -161,7 +213,6 @@
             this.ddlEditorInit();
             // 初始化java编辑插件
             this.javaCodeEditorInit();
-
         },
         methods: {
             onSubmit() {
@@ -178,12 +229,12 @@
             javaCodeEditorInit() {
 
                 // 销毁已有实例（避免重复）
-                if (javaCodeEditor) {
-                    javaCodeEditor.toTextArea();
+                if (this.javaCodeEditor) {
+                    this.javaCodeEditor.toTextArea();
                 }
 
                 // 初始化 CodeMirror
-                javaCodeEditor = CodeMirror.fromTextArea(document.getElementById("javaCode"), {
+                this.javaCodeEditor = CodeMirror.fromTextArea(document.getElementById("javaCode"), {
                     mode: this.codeEditMode,
                     theme: "eclipse",
                     lineNumbers: true,
@@ -194,10 +245,10 @@
                 });
 
                 // 让编辑器高度自适应父容器
-                editor.setSize("100%", "100%");
+                this.javaCodeEditor.setSize("100%", "100%");
 
                 // 输入时自动触发 SQL 提示
-                javaCodeEditor.on("inputRead", function (cm, change) {
+                this.javaCodeEditor.on("inputRead", function (cm, change) {
                     if (change.text[0].match(/[\w\.]/)) {
                         cm.showHint({hint: CodeMirror.hint.sql});
                     }
@@ -205,7 +256,7 @@
             },
             ddlEditorInit() {
                 // 初始化 CodeMirror
-                editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+                this.ddlEditor = CodeMirror.fromTextArea(document.getElementById("code"), {
                     mode: "text/x-sql",
                     theme: "eclipse",
                     lineNumbers: true,
@@ -215,15 +266,80 @@
                 });
 
                 // 让编辑器高度自适应父容器
-                editor.setSize("100%", "100%");
+                this.ddlEditor.setSize("100%", "100%");
 
                 // 输入时自动触发 SQL 提示
-                editor.on("inputRead", function (cm, change) {
+                this.ddlEditor.on("inputRead", function (cm, change) {
                     if (change.text[0].match(/[\w\.]/)) {
                         cm.showHint({hint: CodeMirror.hint.sql});
                     }
                 });
             },
+            toggle(node) {
+                if (node.type === 'folder') {
+                    node.open = !node.open;
+                } else {
+                    this.handleFileClick(node);
+                }
+            },
+            handleFileClick(fileNode) {
+                this.clearSelection(this.fileTree);
+                fileNode.selected = true;
+                this.javaCode = fileNode.content;
+
+                const ext = fileNode.label.split('.').pop();
+                const mode = ext === 'xml' ? 'application/xml' : 'text/x-java';
+                this.javaCodeEditor.setOption("mode", mode);
+                this.javaCodeEditor.setValue(fileNode.content);
+            },
+            clearSelection(nodes) {
+                nodes.forEach(node => {
+                    node.selected = false;
+                    if (node.children) this.clearSelection(node.children);
+                });
+            },
+            buildTree(data) {
+                const tree = [];
+                const map = {};
+
+                data.forEach(file => {
+                    const parts = file.path.split('/');
+                    let current = tree;
+
+                    parts.forEach((part, index) => {
+                        const pathSoFar = parts.slice(0, index + 1).join('/');
+                        if (!map[pathSoFar]) {
+                            const isFile = index === parts.length - 1;
+                            const node = {
+                                id: pathSoFar,
+                                label: part,
+                                type: isFile ? 'file' : 'folder',
+                                open: !isFile,
+                                selected: false,
+                                children: [],
+                                ...(isFile ? {content: file.content} : {})
+                            };
+                            map[pathSoFar] = node;
+                            current.push(node);
+                        }
+                        current = map[pathSoFar].children;
+                    });
+                });
+
+                return tree;
+            },
+            generateHandler(){
+                // 模拟后端数据
+                const response = [
+                    { path: 'com/example/entity/User.java', content: '// User.java content\npublic class User {}' },
+                    { path: 'com/example/mapper/UserMapper.java', content: '// Mapper.java content\ninterface UserMapper {}' },
+                    { path: 'com/example/mapper/UserMapper.xml', content: '<!-- XML content -->\n<mapper></mapper>' }
+                ];
+                this.fileTree = this.buildTree(response);
+            },
+            copyCode() {
+
+            }
         }
     });
 </script>

@@ -51,12 +51,21 @@
 <div id="app" class="container">
     <div class="left-panel">
         <ul>
-            <tree-node
-                    v-for="node in fileTree"
-                    :key="node.id"
-                    :node="node"
-                    @file-click="handleFileClick"
-            />
+            <template v-for="node in fileTree">
+                <li>
+                    <div :class="{ selected: node.selected }" @click="toggle(node)">
+                        <i :class="node.type === 'folder'
+                            ? (node.open ? 'fa-solid fa-folder-open' : 'fa-solid fa-folder')
+                            : 'fa-regular fa-file'"></i>
+                        {{ node.label }}
+                    </div>
+                    <ul v-if="node.children && node.children.length" v-show="node.open">
+                        <template v-for="child in node.children">
+                            <tree-branch :node="child" :key="child.id" @file-click="handleFileClick"></tree-branch>
+                        </template>
+                    </ul>
+                </li>
+            </template>
         </ul>
     </div>
     <div class="right-panel">
@@ -72,37 +81,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.12/mode/xml/xml.min.js"></script>
 
 <script>
-    Vue.component('tree-node', {
-        props: ['node'],
-        methods: {
-            toggle() {
-                if (this.node.type === 'folder') {
-                    this.node.open = !this.node.open;
-                } else {
-                    this.$emit('file-click', this.node);
-                }
-            }
-        },
-        template: `
-    <li>
-      <div @click="toggle" :class="{ selected: node.selected }">
-        <i :class="node.type === 'folder'
-            ? (node.open ? 'fa-solid fa-folder-open' : 'fa-solid fa-folder')
-            : 'fa-regular fa-file'"></i>
-        {{ node.label }}
-      </div>
-      <ul v-if="node.children && node.children.length" v-show="node.open">
-        <tree-node
-          v-for="child in node.children"
-          :key="child.id"
-          :node="child"
-          @file-click="$emit('file-click', $event)"
-        />
-      </ul>
-    </li>
-  `
-    });
-
     new Vue({
         el: '#app',
         data() {
@@ -114,7 +92,8 @@
         },
         mounted() {
             this.initEditor();
-            // 模拟后端返回数据
+
+            // 模拟后端数据
             const response = [
                 { path: 'com/example/entity/User.java', content: '// User.java content\npublic class User {}' },
                 { path: 'com/example/mapper/UserMapper.java', content: '// Mapper.java content\ninterface UserMapper {}' },
@@ -131,6 +110,13 @@
                     readOnly: true
                 });
                 this.editor.setSize("100%", "100%");
+            },
+            toggle(node) {
+                if (node.type === 'folder') {
+                    node.open = !node.open;
+                } else {
+                    this.handleFileClick(node);
+                }
             },
             handleFileClick(fileNode) {
                 this.clearSelection(this.fileTree);
@@ -164,7 +150,7 @@
                                 id: pathSoFar,
                                 label: part,
                                 type: isFile ? 'file' : 'folder',
-                                open: false,
+                                open: !isFile,
                                 selected: false,
                                 children: [],
                                 ...(isFile ? { content: file.content } : {})
@@ -179,6 +165,40 @@
                 return tree;
             }
         }
+    });
+</script>
+
+<script>
+    // 手动注册 tree-branch，不作为单文件组件，只是渲染子节点（非递归组件）
+    Vue.component('tree-branch', {
+        props: ['node'],
+        methods: {
+            toggle(node) {
+                if (node.type === 'folder') {
+                    node.open = !node.open;
+                } else {
+                    this.$emit('file-click', node);
+                }
+            }
+        },
+        template: `
+            <li>
+                <div :class="{ selected: node.selected }" @click="toggle(node)">
+                    <i :class="node.type === 'folder'
+                        ? (node.open ? 'fa-solid fa-folder-open' : 'fa-solid fa-folder')
+                        : 'fa-regular fa-file'"></i>
+                    {{ node.label }}
+                </div>
+                <ul v-if="node.children && node.children.length" v-show="node.open">
+                    <tree-branch
+                        v-for="child in node.children"
+                        :key="child.id"
+                        :node="child"
+                        @file-click="$emit('file-click', $event)"
+                    ></tree-branch>
+                </ul>
+            </li>
+        `
     });
 </script>
 </body>
