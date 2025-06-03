@@ -20,13 +20,13 @@ html, body {
 }
 
 .ddl-code-wrapper {
-    height: 80%;
+    height: 100%;
     display: flex;
     flex-direction: column;
 }
 
 .java-code-wrapper {
-    height: 90%;
+    height: 100%;
     display: flex;
     flex-direction: column;
     position: relative;

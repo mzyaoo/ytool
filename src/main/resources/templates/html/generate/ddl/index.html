@@ -16,19 +16,35 @@
 <body>
 
 <div id="app" v-cloak>
+    <el-row type="flex" justify="center" align="middle" style="background-color: #fff; padding: 40px 20px;">
+        <el-col :xs="24" :sm="24" :md="14">
+            <div>
+                <h1 style="font-size: 36px; font-weight: bold; margin-bottom: 20px;text-align: center">在线 Java
+                    代码生成器</h1>
+                <p style="font-size: 16px; color: #666; line-height: 1.8;text-align: center">
+                    SQL转JAVA | SQL转JPA | SQL转Mybatis | Mybatis在线生成器<br>
+                    SQL转Java | JPA | Mybatis实现类模板代码生成平台<br>
+                    通过建表SQL语句生成 JPA / JdbcTemplate / Mybatis / MybatisPlus 等相关代码
+                </p>
+                <div style="margin-top: 30px;display: flex;justify-content: center">
+                    <el-button type="danger" size="medium">立即生成</el-button>
+                </div>
+            </div>
+        </el-col>
+        <el-col :xs="24" :sm="24" :md="8" style="text-align: center; margin-top: 20px;">
+            <img th:src="@{/img/code.png}" alt="代码生成器插图"
+                 style="max-width: 40%; height: auto;">
+        </el-col>
+    </el-row>
     <el-row :gutter="20" style="height: calc(100vh - 40px);">
         <el-col :span="12" style="height: 100%;">
             <div class="title">DDL建表语句</div>
             <div class="ddl-code-wrapper">
                 <textarea id="code" v-model="ddlText"></textarea>
             </div>
-            <div class="button-div">
-                <el-button type="success" round @click="drawer = true">配置项</el-button>
-                <el-button type="primary" round @click="onSubmit">生成代码</el-button>
-            </div>
         </el-col>
         <el-col :span="12" style="height: 100%;">
-            <div class="title">Java代码</div>
+            <div class="title">生成结果</div>
             <div class="java-code-wrapper">
                 <button class="copy-btn" id="copyBtn">
                     <i class="iconfont icon-copy"></i> 复制
@@ -188,7 +204,7 @@
                 });
 
                 // 让编辑器高度自适应父容器
-                // editor.setSize("100%", "70%");
+                editor.setSize("100%", "100%");
 
                 // 输入时自动触发 SQL 提示
                 editor.on("inputRead", function (cm, change) {
