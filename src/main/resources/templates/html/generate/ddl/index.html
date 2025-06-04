@@ -11,8 +11,6 @@
     <link rel="stylesheet" th:href="@{/utils/codemirror/theme/eclipse.css}">
     <link rel="stylesheet" th:href="@{/utils/codemirror/hint/show-hint.css}">
     <link rel="stylesheet" th:href="@{/utils/icon/iconfont.css}">
-    <!-- Font Awesome 图标 -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 </head>
 <body>
 
@@ -38,16 +36,22 @@
                  style="max-width: 40%; height: auto;">
         </el-col>
     </el-row>
-    <div style="margin: 0 40px">
+    <div style="margin: 0 100px">
         <el-row :gutter="20" style="height: calc(100vh - 40px);">
-            <el-col :span="12" style="height: 100%;">
-                <div class="title">DDL建表语句</div>
+            <el-col :span="10" style="height: 100%;">
+                <div style="display: flex;align-items: center;padding-bottom: 15px">
+                    <div style="width: 4px; height: 20px; background: rgb(255, 146, 0);"></div>
+                    <div class="title">DDL建表语句</div>
+                </div>
                 <div class="ddl-code-wrapper">
                     <textarea id="code" v-model="ddlText"></textarea>
                 </div>
             </el-col>
-            <el-col :span="12" style="height: 100%;">
-                <div class="title">生成结果</div>
+            <el-col :span="14" style="height: 100%;">
+                <div style="display: flex;align-items: center;padding-bottom: 15px">
+                    <div style="width: 4px; height: 20px; background: rgb(255, 146, 0);"></div>
+                    <div class="title">生成结果</div>
+                </div>
                 <el-row :gutter="20" style="height: calc(100vh - 40px);">
                     <el-col :span="10" style="height: 100%; overflow: auto">
                         <!-- 文件树容器 -->
@@ -56,8 +60,8 @@
                                 <li>
                                     <div :class="{ selected: node.selected }" @click="toggle(node)">
                                         <i :class="node.type === 'folder'
-                            ? (node.open ? 'fa-solid fa-folder-open' : 'fa-solid fa-folder')
-                            : 'fa-regular fa-file'"></i>
+                            ? (node.open ? 'el-icon-folder-opened' : 'el-icon-folder')
+                            : 'el-icon-document'"></i>
                                         {{ node.label }}
                                     </div>
                                     <ul v-if="node.children && node.children.length" v-show="node.open">
@@ -166,8 +170,8 @@
             <li>
                 <div :class="{ selected: node.selected }" @click="toggle(node)">
                     <i :class="node.type === 'folder'
-                        ? (node.open ? 'fa-solid fa-folder-open' : 'fa-solid fa-folder')
-                        : 'fa-regular fa-file'"></i>
+                        ? (node.open ? 'el-icon-folder-opened' : 'el-icon-folder')
+                        : 'el-icon-document'"></i>
                     {{ node.label }}
                 </div>
                 <ul v-if="node.children && node.children.length" v-show="node.open">
@@ -191,7 +195,7 @@
                 ddlEditor: null,
                 javaCodeEditor: null,
                 ddlText: '',
-                javaCode: '',
+                javaCode: '// 点击左侧预览代码',
                 drawer: false,
                 direction: 'ttb',
                 codeEditMode: 'text/x-java',
@@ -328,12 +332,15 @@
 
                 return tree;
             },
-            generateHandler(){
+            generateHandler() {
                 // 模拟后端数据
                 const response = [
-                    { path: 'com/example/entity/User.java', content: '// User.java content\npublic class User {}' },
-                    { path: 'com/example/mapper/UserMapper.java', content: '// Mapper.java content\ninterface UserMapper {}' },
-                    { path: 'com/example/mapper/UserMapper.xml', content: '<!-- XML content -->\n<mapper></mapper>' }
+                    {path: 'com/example/entity/User.java', content: '// User.java content\npublic class User {}'},
+                    {
+                        path: 'com/example/mapper/UserMapper.java',
+                        content: '// Mapper.java content\ninterface UserMapper {}'
+                    },
+                    {path: 'com/example/mapper/UserMapper.xml', content: '<!-- XML content -->\n<mapper></mapper>'}
                 ];
                 this.fileTree = this.buildTree(response);
             },
