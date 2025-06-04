@@ -92,6 +92,7 @@ html, body {
 ul {
     list-style: none;
     padding-left: 20px;
+    width: 100%;
 }
 li > div {
     cursor: pointer;

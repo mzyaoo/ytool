@@ -1,9 +1,12 @@
 package com.mzyao.ytool.controller;
 
 import com.mzyao.ytool.aop.annotations.Log;
+import com.mzyao.ytool.common.Result;
 import com.mzyao.ytool.entity.dto.CodeGenerateRequest;
 import com.mzyao.ytool.entity.dto.DbConfigRequest;
+import com.mzyao.ytool.entity.dto.DdlToJavaRequest;
 import com.mzyao.ytool.entity.vo.ColumnInfo;
+import com.mzyao.ytool.entity.vo.DdlToJavaVo;
 import com.mzyao.ytool.entity.vo.TableInfo;
 import com.mzyao.ytool.enums.JavaType;
 import com.mzyao.ytool.service.GenerateCodeService;
@@ -14,6 +17,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -76,4 +80,48 @@ public class GenerateCodeController {
         return JavaType.getTypeList();
     }
 
+
+    /**
+     * ddl 转 Java代码
+     *
+     * @return
+     */
+    @Log
+    @PostMapping("ddlToJava")
+    public Result<List<DdlToJavaVo>> ddlToJava(@RequestBody DdlToJavaRequest param) {
+
+        List<DdlToJavaVo> data = new ArrayList<>();
+
+        data.add(DdlToJavaVo.builder()
+                .javaCode("// User.java")
+                .packagePath("src/main/java/com/example/entity/User.java")
+                .build());
+
+        data.add(DdlToJavaVo.builder()
+                .javaCode("// UserMapper.java")
+                .packagePath("src/main/java/com/example/mapper/UserMapper.java")
+                .build());
+
+        data.add(DdlToJavaVo.builder()
+                .javaCode("// UserService.java\"")
+                .packagePath("src/main/java/com/example/service/UserService.java")
+                .build());
+
+        data.add(DdlToJavaVo.builder()
+                .javaCode("// UserServiceImpl.java")
+                .packagePath("src/main/java/com/example/service/impl/UserServiceImpl.java")
+                .build());
+
+        data.add(DdlToJavaVo.builder()
+                .javaCode("// UserController.java")
+                .packagePath("src/main/java/com/example/controller/UserController.java")
+                .build());
+
+        data.add(DdlToJavaVo.builder()
+                .javaCode("<insert></insert>")
+                .packagePath("src/main/resources/UserMapper.xml")
+                .build());
+
+        return Result.success(data);
+    }
 }

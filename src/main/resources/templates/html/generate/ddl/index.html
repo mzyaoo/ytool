@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- 样式引入 -->
     <link rel="stylesheet" th:href="@{/utils/elementui/theme-chalk/index.css}">
+    <link rel="stylesheet" th:href="@{/utils/layui/css/layui.css}">
     <link rel="stylesheet" th:href="@{/css/ddl/index.css}">
     <link rel="stylesheet" th:href="@{/utils/codemirror/index.css}">
     <link rel="stylesheet" th:href="@{/utils/codemirror/theme/eclipse.css}">
@@ -87,63 +88,72 @@
         </el-row>
     </div>
 
+    <el-dialog title="代码生成配置" :visible.sync="formVisible">
 
-    <el-drawer
-            title="配置项信息"
-            size="40%"
-            :visible.sync="drawer"
-            :direction="direction">
-        <el-form ref="form" :model="form" label-width="150px">
-            <el-row :gutter="20">
-                <el-col :span="6">
-                    <el-form-item label="包路径">
-                        <el-input v-model="form.packageUrl"></el-input>
-                    </el-form-item>
-                    <el-form-item label="是否需要注释：">
-                        <el-radio-group v-model="form.openComments">
-                            <el-radio label="是"></el-radio>
-                            <el-radio label="否"></el-radio>
-                        </el-radio-group>
-                    </el-form-item>
-                </el-col>
-                <el-col :span="6">
-                    <el-form-item label="代码">
-                        <el-select v-model="form.dbType" @change="codeChange" placeholder="请选择生成的代码类型">
-                            <el-option label="entity" value="entity"></el-option>
-                            <el-option label="mapper.java" value="mapper.java"></el-option>
-                            <el-option label="mapper.xml" value="mapper.xml"></el-option>
-                            <el-option label="service" value="service"></el-option>
-                            <el-option label="serviceImpl" value="serviceImpl"></el-option>
-                            <el-option label="controller" value="controller"></el-option>
-                        </el-select>
-                    </el-form-item>
-                    <el-form-item label="是否开启Swagger：">
-                        <el-radio-group v-model="form.openComments">
-                            <el-radio label="是"></el-radio>
-                            <el-radio label="否"></el-radio>
-                        </el-radio-group>
-                    </el-form-item>
-                </el-col>
-                <el-col :span="6">
-                    <el-form-item label="中间件">
-                        <el-select v-model="form.dbType" placeholder="请选择生成的代码类型">
-                            <el-option label="jpa" value="jpa"></el-option>
-                            <el-option label="Mybatis" value="Mybatis"></el-option>
-                            <el-option label="Mybatis-Plus" value="Mybatis-Plus"></el-option>
-                        </el-select>
-                    </el-form-item>
-                </el-col>
-                <el-col :span="6">
+        <form class="layui-form layui-form-pane" action="">
 
-                </el-col>
-            </el-row>
+            <div style="display: flex;align-items: center;padding-bottom: 15px">
+                <div style="width: 4px; height: 20px; background: rgb(255, 146, 0);"></div>
+                <span style="font-size: 16px; font-weight: 600;padding-left: 10px">基础配置</span>
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label">包名：</label>
+                <div class="layui-input-block">
+                    <input type="text" name="title" autocomplete="off" placeholder="请输入" lay-verify="required"
+                           class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">作者：</label>
+                <div class="layui-input-block">
+                    <input type="text" name="title" autocomplete="off" placeholder="请输入" lay-verify="required"
+                           class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">接口前缀：</label>
+                <div class="layui-input-block">
+                    <input type="text" name="title" autocomplete="off" placeholder="请输入" lay-verify="required"
+                           class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">忽略表前缀：</label>
+                <div class="layui-input-block">
+                    <input type="text" name="title" autocomplete="off" placeholder="请输入" lay-verify="required"
+                           class="layui-input">
+                </div>
+            </div>
+        </form>
+
+        <div style="display: flex;align-items: center;padding-bottom: 15px">
+            <div style="width: 4px; height: 20px; background: rgb(255, 146, 0);"></div>
+            <span style="font-size: 16px; font-weight: 600;padding-left: 10px">方法配置</span>
+        </div>
+
+        <!--            <div style="display: flex;align-items: center;padding-bottom: 15px">-->
+        <!--                <div style="width: 4px; height: 20px; background: rgb(255, 146, 0);"></div>-->
+        <!--                <span style="font-size: 16px; font-weight: 600;padding-left: 10px">更多选项</span>-->
+        <!--            </div>-->
+
+        <!--            <div style="display: flex;align-items: center;padding-bottom: 15px">-->
+        <!--                <div style="width: 4px; height: 20px; background: rgb(255, 146, 0);"></div>-->
+        <!--                <span style="font-size: 16px; font-weight: 600;padding-left: 10px">集成依赖</span>-->
+        <!--            </div>-->
 
         </el-form>
-    </el-drawer>
+        <div slot="footer" class="dialog-footer">
+            <el-button @click="formVisible = false">取 消</el-button>
+            <el-button type="primary" @click="generateFormSubmit">确 定</el-button>
+        </div>
+    </el-dialog>
+
 </div>
 
 <!-- JS 引入 -->
 <script th:src="@{/utils/jQuery3.6.0.min.js}"></script>
+<script th:src="@{/utils/layui/layui.js}"></script>
 <script th:src="@{/utils/vue2.7.16.min.js}"></script>
 <script th:src="@{/utils/elementui/ele-lib-index.js}"></script>
 <script th:src="@{/utils/codemirror/index.js}"></script>
@@ -152,6 +162,7 @@
 <script th:src="@{/utils/codemirror/mode/xml.js}"></script>
 <script th:src="@{/utils/codemirror/hint/show-hint.js}"></script>
 <script th:src="@{/utils/codemirror/hint/sql-hint.js}"></script>
+<script th:src="@{/js/ddl_to_java.js}"></script>
 
 <script>
     // 手动注册 tree-branch，不作为单文件组件，只是渲染子节点（非递归组件）
@@ -187,168 +198,5 @@
     });
 </script>
 
-<script>
-    new Vue({
-        el: '#app',
-        data() {
-            return {
-                ddlEditor: null,
-                javaCodeEditor: null,
-                ddlText: '',
-                javaCode: '// 点击左侧预览代码',
-                drawer: false,
-                direction: 'ttb',
-                codeEditMode: 'text/x-java',
-                form: {
-                    name: '',
-                    region: '',
-                    date1: '',
-                    date2: '',
-                    delivery: false,
-                    type: [],
-                    resource: '',
-                    desc: ''
-                },
-                fileTree: [],
-            };
-        },
-        mounted() {
-            // 初始化ddl编辑插件
-            this.ddlEditorInit();
-            // 初始化java编辑插件
-            this.javaCodeEditorInit();
-        },
-        methods: {
-            onSubmit() {
-                console.log('submit!');
-            },
-            codeChange(val) {
-                if (val.includes("xml")) {
-                    this.codeEditMode = "application/xml";
-                } else {
-                    this.codeEditMode = "text/x-java";
-                }
-                this.javaCodeEditorInit();
-            },
-            javaCodeEditorInit() {
-
-                // 销毁已有实例（避免重复）
-                if (this.javaCodeEditor) {
-                    this.javaCodeEditor.toTextArea();
-                }
-
-                // 初始化 CodeMirror
-                this.javaCodeEditor = CodeMirror.fromTextArea(document.getElementById("javaCode"), {
-                    mode: this.codeEditMode,
-                    theme: "eclipse",
-                    lineNumbers: true,
-                    readOnly: true,
-                    extraKeys: {
-                        "Ctrl-Space": "autocomplete"
-                    }
-                });
-
-                // 让编辑器高度自适应父容器
-                this.javaCodeEditor.setSize("100%", "100%");
-
-                // 输入时自动触发 SQL 提示
-                this.javaCodeEditor.on("inputRead", function (cm, change) {
-                    if (change.text[0].match(/[\w\.]/)) {
-                        cm.showHint({hint: CodeMirror.hint.sql});
-                    }
-                });
-            },
-            ddlEditorInit() {
-                // 初始化 CodeMirror
-                this.ddlEditor = CodeMirror.fromTextArea(document.getElementById("code"), {
-                    mode: "text/x-sql",
-                    theme: "eclipse",
-                    lineNumbers: true,
-                    extraKeys: {
-                        "Ctrl-Space": "autocomplete"
-                    }
-                });
-
-                // 让编辑器高度自适应父容器
-                this.ddlEditor.setSize("100%", "100%");
-
-                // 输入时自动触发 SQL 提示
-                this.ddlEditor.on("inputRead", function (cm, change) {
-                    if (change.text[0].match(/[\w\.]/)) {
-                        cm.showHint({hint: CodeMirror.hint.sql});
-                    }
-                });
-            },
-            toggle(node) {
-                if (node.type === 'folder') {
-                    node.open = !node.open;
-                } else {
-                    this.handleFileClick(node);
-                }
-            },
-            handleFileClick(fileNode) {
-                this.clearSelection(this.fileTree);
-                fileNode.selected = true;
-                this.javaCode = fileNode.content;
-
-                const ext = fileNode.label.split('.').pop();
-                const mode = ext === 'xml' ? 'application/xml' : 'text/x-java';
-                this.javaCodeEditor.setOption("mode", mode);
-                this.javaCodeEditor.setValue(fileNode.content);
-            },
-            clearSelection(nodes) {
-                nodes.forEach(node => {
-                    node.selected = false;
-                    if (node.children) this.clearSelection(node.children);
-                });
-            },
-            buildTree(data) {
-                const tree = [];
-                const map = {};
-
-                data.forEach(file => {
-                    const parts = file.path.split('/');
-                    let current = tree;
-
-                    parts.forEach((part, index) => {
-                        const pathSoFar = parts.slice(0, index + 1).join('/');
-                        if (!map[pathSoFar]) {
-                            const isFile = index === parts.length - 1;
-                            const node = {
-                                id: pathSoFar,
-                                label: part,
-                                type: isFile ? 'file' : 'folder',
-                                open: !isFile,
-                                selected: false,
-                                children: [],
-                                ...(isFile ? {content: file.content} : {})
-                            };
-                            map[pathSoFar] = node;
-                            current.push(node);
-                        }
-                        current = map[pathSoFar].children;
-                    });
-                });
-
-                return tree;
-            },
-            generateHandler() {
-                // 模拟后端数据
-                const response = [
-                    {path: 'com/example/entity/User.java', content: '// User.java content\npublic class User {}'},
-                    {
-                        path: 'com/example/mapper/UserMapper.java',
-                        content: '// Mapper.java content\ninterface UserMapper {}'
-                    },
-                    {path: 'com/example/mapper/UserMapper.xml', content: '<!-- XML content -->\n<mapper></mapper>'}
-                ];
-                this.fileTree = this.buildTree(response);
-            },
-            copyCode() {
-
-            }
-        }
-    });
-</script>
 </body>
 </html>

@@ -42,6 +42,17 @@ public class Result<T> implements Serializable {
     }
 
     /**
+     * 成功
+     *
+     * @param
+     * @param <T>
+     * @return
+     */
+    public static <T> Result<T> success() {
+        return new Result<>(ErrorCode.SUCCESS.getCode(), null, ErrorCode.SUCCESS.getMessage());
+    }
+
+    /**
      * 失败
      */
     public static Result<?> error(ErrorCode errorCode, String message) {
