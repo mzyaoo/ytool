@@ -4,3 +4,21 @@ server:
 spring:
   profiles:
     active: dev
+    # 缓存
+  cache:
+    type: ehcache
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+
+# 接口文档配置
+knife4j:
+  enable: true
+  openapi:
+    title: "接口文档"
+    version: 1.0
+    group:
+      default:
+        api-rule: package
+        api-rule-resources:
+          - com.mzyao.ytool.controller
