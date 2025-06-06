@@ -4,91 +4,195 @@
     <meta charset="UTF-8">
     <title>ytool-index</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" th:href="@{/utils/elementui/theme-chalk/index.css}">
+    <!-- Layui 样式 -->
+    <link rel="stylesheet" th:href="@{/utils/layui/css/layui.css}">
     <link rel="stylesheet" th:href="@{/css/layout/index.css}">
     <link rel="stylesheet" th:href="@{/utils/icon/iconfont.css}">
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            background-color: #f9f9f9;
+        }
+
+        .layui-header {
+            display: flex;
+            align-items: center;
+            height: 52px;
+            background-color: #fff;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+            padding: 0 20px;
+            z-index: 1000;
+        }
+
+        .logo-area {
+            font-size: 18px;
+            color: #333;
+            font-weight: 600;
+            margin-right: 30px;
+            white-space: nowrap;
+        }
+
+        .layui-header .layui-nav {
+            background: none;
+        }
+
+        .layui-nav .layui-nav-item > a {
+            padding: 0 15px;
+            font-size: 14px;
+            color: #444;
+            display: flex;
+            align-items: center;
+        }
+
+        .layui-nav .layui-nav-item > a:hover,
+        .layui-nav .layui-nav-itemed > a,
+        .layui-nav .layui-this > a {
+            background-color: #f2f2f2 !important;
+            color: #409EFF !important;
+        }
+
+        .layui-nav .layui-nav-child {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            min-width: 160px;
+            background-color: #fff;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            display: none;
+            z-index: 999;
+            margin-top: 4px;
+        }
+
+        .layui-nav-item:hover > .layui-nav-child {
+            display: block;
+        }
+
+        .layui-nav .layui-nav-child dd {
+            padding: 0;
+        }
+
+        .layui-nav .layui-nav-child dd a {
+            display: block;
+            padding: 8px 16px;
+            font-size: 14px;
+            color: #333;
+            white-space: nowrap;
+        }
+
+        .layui-nav .layui-nav-child dd a:hover {
+            background-color: #f5f5f5;
+        }
+
+        .main-iframe {
+            width: 100%;
+            height: calc(100vh - 52px);
+            border: none;
+            background-color: #fff;
+        }
+
+        .iconfont {
+            font-size: 16px;
+            margin-right: 6px;
+            vertical-align: middle;
+        }
+
+        .menu-arrow {
+            margin-left: 6px;
+            font-size: 12px;
+            color: #999;
+        }
+    </style>
 </head>
 <body>
-<div id="app">
-    <el-container>
-        <!-- 顶部菜单区域（带 logo） -->
-        <el-header>
-            <!-- logo 区域 -->
-            <div class="logo-area">
-                <i class="iconfont icon-kaifagongju"></i>
-            </div>
 
-            <!-- 顶部菜单 -->
-            <el-menu
-                    mode="horizontal"
-                    :default-active="activeMenu"
-                    background-color="#fff"
-                    text-color="#333"
-                    active-text-color="#409EFF"
-                    @select="handleMenuSelect"
-                    style="border: none; flex: 1;"
-            >
-                <!-- 顶级菜单（无子菜单） -->
-                <el-menu-item
-                        th:if="${#lists.isEmpty(menu.children)}"
-                        th:each="menu : ${menus}"
-                        th:attr="index=${menu.path}">
-                    <i th:class="${menu.icon}" class="menu-icon"></i>
-                    <span th:text="${menu.name}"></span>
-                </el-menu-item>
-
-                <!-- 顶级菜单（有子菜单） -->
-                <el-submenu
-                        th:if="${#lists.isEmpty(menu.children)} == false"
-                        th:each="menu : ${menus}"
-                        th:attr="index=${menu.id}">
-                    <template slot="title">
-                        <i th:class="${menu.icon}" class="menu-icon"></i>
-                        <span th:text="${menu.name}"></span>
-                    </template>
-                    <el-menu-item
-                            th:each="child : ${menu.children}"
-                            th:attr="index=${child.path}">
-                        <i th:class="${child.icon}" class="menu-icon"></i>
-                        <span th:text="${child.name}"></span>
-                    </el-menu-item>
-                </el-submenu>
-            </el-menu>
-        </el-header>
-
-
-        <!-- 主体内容区域 -->
-        <el-main>
-            <iframe class="main-iframe" :src="iframeSrc"></iframe>
-        </el-main>
-    </el-container>
+<!-- 顶部栏 -->
+<div class="layui-header">
+    <div class="logo-area">
+        <i class="iconfont icon-kaifagongju"></i> YTool
+    </div>
+    <ul class="layui-nav" id="top-menus">
+        <!-- 菜单通过 JS 渲染 -->
+    </ul>
 </div>
 
+<!-- 主体内容 -->
+<iframe class="main-iframe" id="mainIframe" src=""></iframe>
+
+<!-- JS 引入 -->
 <script th:src="@{/utils/jQuery3.6.0.min.js}"></script>
-<script th:src="@{/utils/vue2.7.16.min.js}"></script>
-<script th:src="@{/utils/elementui/ele-lib-index.js}"></script>
+<script th:src="@{/utils/layui/layui.js}"></script>
+
 <script th:inline="javascript">
-    new Vue({
-        el: '#app',
-        data() {
-            return {
-                activeMenu: [[${defaultMenuPath}]],
-                iframeSrc: [[${defaultMenuPath}]]
-            }
-        },
-        mounted() {
-            this.init();
-        },
-        methods: {
-            handleMenuSelect(path) {
-                this.iframeSrc = path;
-                this.activeMenu = path;
-            },
-            init() {
-                console.log("加载布局页面。。。。。")
+    layui.use(['element'], function () {
+        var element = layui.element;
+
+        // 菜单数据
+        var menus = [[${menus}]];
+        var defaultPath = [[${defaultMenuPath}]];
+
+        function renderMenus(data) {
+            var html = '';
+            data.forEach(function (menu) {
+                if (!menu.children || menu.children.length === 0) {
+                    html += `
+                        <li class="layui-nav-item" data-path="${menu.path}">
+                            <a href="javascript:;">
+                                <i class="${menu.icon || ''} iconfont"></i>${menu.name}
+                            </a>
+                        </li>`;
+                } else {
+                    html += `
+                        <li class="layui-nav-item">
+                            <a href="javascript:;">
+                                <i class="${menu.icon || ''} iconfont"></i>${menu.name}
+                                <i class="layui-icon menu-arrow"></i>
+                            </a>
+                            <dl class="layui-nav-child">`;
+                    menu.children.forEach(function (child) {
+                        html += `
+                                <dd data-path="${child.path}">
+                                    <a href="javascript:;">
+                                        <i class="${child.icon || ''} iconfont"></i>${child.name}
+                                    </a>
+                                </dd>`;
+                    });
+                    html += `</dl></li>`;
+                }
+            });
+            $('#top-menus').html(html);
+            element.render();
+        }
+
+        function bindMenuClick() {
+            $('#top-menus').on('click', '[data-path]', function () {
+                var path = $(this).attr('data-path');
+                $('#mainIframe').attr('src', path);
+                $('#top-menus .layui-this').removeClass('layui-this');
+                $(this).closest('li').addClass('layui-this');
+            });
+        }
+
+        function activateDefault(path) {
+            $('#mainIframe').attr('src', path);
+            var target = $(`#top-menus [data-path="${path}"]`);
+            if (target.length) {
+                target.closest('li').addClass('layui-this');
             }
         }
-    })
+
+        function init() {
+            renderMenus(menus);
+            bindMenuClick();
+            activateDefault(defaultPath);
+        }
+
+        init();
+    });
 </script>
+
 </body>
 </html>

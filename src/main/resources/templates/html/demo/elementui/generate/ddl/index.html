@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ddl语法转Java代码</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- 样式引入 -->
+    <link rel="stylesheet" th:href="@{/utils/elementui/theme-chalk/index.css}">
+    <link rel="stylesheet" th:href="@{/utils/layui/css/layui.css}">
+    <link rel="stylesheet" th:href="@{/css/ddl/index.css}">
+    <link rel="stylesheet" th:href="@{/utils/codemirror/index.css}">
+    <link rel="stylesheet" th:href="@{/utils/codemirror/theme/eclipse.css}">
+    <link rel="stylesheet" th:href="@{/utils/codemirror/hint/show-hint.css}">
+    <link rel="stylesheet" th:href="@{/utils/icon/iconfont.css}">
+</head>
+<body>
+
+
+<div id="app" v-cloak>
+    <el-row type="flex" justify="center" align="middle" style="background-color: #fff; padding: 40px 20px;">
+        <el-col :xs="24" :sm="24" :md="14">
+            <div>
+                <h1 style="font-size: 36px; font-weight: bold; margin-bottom: 20px;text-align: center">在线 Java
+                    代码生成器</h1>
+                <p style="font-size: 16px; color: #666; line-height: 1.8;text-align: center">
+                    SQL转JAVA | SQL转JPA | SQL转Mybatis | Mybatis在线生成器<br>
+                    SQL转Java | JPA | Mybatis实现类模板代码生成平台<br>
+                    通过建表SQL语句生成 JPA / JdbcTemplate / Mybatis / MybatisPlus 等相关代码
+                </p>
+                <div style="margin-top: 30px;display: flex;justify-content: center">
+                    <el-button type="danger" size="medium" @click="generateHandler">立即生成</el-button>
+                </div>
+            </div>
+        </el-col>
+        <el-col :xs="24" :sm="24" :md="8" style="text-align: center; margin-top: 20px;">
+            <img th:src="@{/img/code.png}" alt="代码生成器插图"
+                 style="max-width: 40%; height: auto;">
+        </el-col>
+    </el-row>
+    <div style="margin: 0 100px">
+        <el-row :gutter="20" style="height: calc(100vh - 40px);">
+            <el-col :span="10" style="height: 100%;">
+                <div style="display: flex;align-items: center;padding-bottom: 15px">
+                    <div style="width: 4px; height: 20px; background: rgb(255, 146, 0);"></div>
+                    <div class="title">DDL建表语句</div>
+                </div>
+                <div class="ddl-code-wrapper">
+                    <textarea id="code" v-model="ddlText"></textarea>
+                </div>
+            </el-col>
+            <el-col :span="14" style="height: 100%;">
+                <div style="display: flex;align-items: center;padding-bottom: 15px">
+                    <div style="width: 4px; height: 20px; background: rgb(255, 146, 0);"></div>
+                    <div class="title">生成结果</div>
+                </div>
+                <el-row :gutter="20" style="height: calc(100vh - 40px);">
+                    <el-col :span="10" style="height: 100%; overflow: auto">
+                        <!-- 文件树容器 -->
+                        <ul>
+                            <template v-for="node in fileTree">
+                                <li>
+                                    <div :class="{ selected: node.selected }" @click="toggle(node)">
+                                        <i :class="node.type === 'folder'
+                            ? (node.open ? 'el-icon-folder-opened' : 'el-icon-folder')
+                            : 'el-icon-document'"></i>
+                                        {{ node.label }}
+                                    </div>
+                                    <ul v-if="node.children && node.children.length" v-show="node.open">
+                                        <template v-for="child in node.children">
+                                            <tree-branch :node="child" :key="child.id"
+                                                         @file-click="handleFileClick"></tree-branch>
+                                        </template>
+                                    </ul>
+                                </li>
+                            </template>
+                        </ul>
+                    </el-col>
+                    <el-col :span="14" style="height: 100%;">
+                        <div class="java-code-wrapper">
+                            <button class="copy-btn" id="copyBtn" @click="copyCode">
+                                <i class="iconfont icon-copy"></i> 复制
+                            </button>
+                            <textarea id="javaCode" v-model="javaCode" readonly></textarea>
+                        </div>
+                    </el-col>
+                </el-row>
+            </el-col>
+        </el-row>
+    </div>
+
+    <el-dialog title="代码生成配置" :visible.sync="formVisible">
+
+        <form class="layui-form layui-form-pane" action="">
+
+            <div style="display: flex;align-items: center;padding-bottom: 15px">
+                <div style="width: 4px; height: 20px; background: rgb(255, 146, 0);"></div>
+                <span style="font-size: 16px; font-weight: 600;padding-left: 10px">基础配置</span>
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label">包名：</label>
+                <div class="layui-input-block">
+                    <input type="text" name="title" autocomplete="off" placeholder="请输入" lay-verify="required"
+                           class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">作者：</label>
+                <div class="layui-input-block">
+                    <input type="text" name="title" autocomplete="off" placeholder="请输入" lay-verify="required"
+                           class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">接口前缀：</label>
+                <div class="layui-input-block">
+                    <input type="text" name="title" autocomplete="off" placeholder="请输入" lay-verify="required"
+                           class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">忽略表前缀：</label>
+                <div class="layui-input-block">
+                    <input type="text" name="title" autocomplete="off" placeholder="请输入" lay-verify="required"
+                           class="layui-input">
+                </div>
+            </div>
+        </form>
+
+        <div style="display: flex;align-items: center;padding-bottom: 15px">
+            <div style="width: 4px; height: 20px; background: rgb(255, 146, 0);"></div>
+            <span style="font-size: 16px; font-weight: 600;padding-left: 10px">方法配置</span>
+        </div>
+
+        <!--            <div style="display: flex;align-items: center;padding-bottom: 15px">-->
+        <!--                <div style="width: 4px; height: 20px; background: rgb(255, 146, 0);"></div>-->
+        <!--                <span style="font-size: 16px; font-weight: 600;padding-left: 10px">更多选项</span>-->
+        <!--            </div>-->
+
+        <!--            <div style="display: flex;align-items: center;padding-bottom: 15px">-->
+        <!--                <div style="width: 4px; height: 20px; background: rgb(255, 146, 0);"></div>-->
+        <!--                <span style="font-size: 16px; font-weight: 600;padding-left: 10px">集成依赖</span>-->
+        <!--            </div>-->
+
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+            <el-button @click="formVisible = false">取 消</el-button>
+            <el-button type="primary" @click="generateFormSubmit">确 定</el-button>
+        </div>
+    </el-dialog>
+
+</div>
+
+<!-- JS 引入 -->
+<script th:src="@{/utils/jQuery3.6.0.min.js}"></script>
+<script th:src="@{/utils/layui/layui.js}"></script>
+<script th:src="@{/utils/vue2.7.16.min.js}"></script>
+<script th:src="@{/utils/elementui/ele-lib-index.js}"></script>
+<script th:src="@{/utils/codemirror/index.js}"></script>
+<script th:src="@{/utils/codemirror/mode/sql.js}"></script>
+<script th:src="@{/utils/codemirror/mode/clike.js}"></script>
+<script th:src="@{/utils/codemirror/mode/xml.js}"></script>
+<script th:src="@{/utils/codemirror/hint/show-hint.js}"></script>
+<script th:src="@{/utils/codemirror/hint/sql-hint.js}"></script>
+<script th:src="@{/js/ddl_to_java.js}"></script>
+
+<script>
+    // 手动注册 tree-branch，不作为单文件组件，只是渲染子节点（非递归组件）
+    Vue.component('tree-branch', {
+        props: ['node'],
+        methods: {
+            toggle(node) {
+                if (node.type === 'folder') {
+                    node.open = !node.open;
+                } else {
+                    this.$emit('file-click', node);
+                }
+            }
+        },
+        template: `
+            <li>
+                <div :class="{ selected: node.selected }" @click="toggle(node)">
+                    <i :class="node.type === 'folder'
+                        ? (node.open ? 'el-icon-folder-opened' : 'el-icon-folder')
+                        : 'el-icon-document'"></i>
+                    {{ node.label }}
+                </div>
+                <ul v-if="node.children && node.children.length" v-show="node.open">
+                    <tree-branch
+                        v-for="child in node.children"
+                        :key="child.id"
+                        :node="child"
+                        @file-click="$emit('file-click', $event)"
+                    ></tree-branch>
+                </ul>
+            </li>
+        `
+    });
+</script>
+
+</body>
+</html>

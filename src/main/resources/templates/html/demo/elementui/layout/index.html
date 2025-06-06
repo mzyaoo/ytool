@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>ytool-index</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" th:href="@{/utils/elementui/theme-chalk/index.css}">
+    <link rel="stylesheet" th:href="@{/css/layout/index.css}">
+    <link rel="stylesheet" th:href="@{/utils/icon/iconfont.css}">
+</head>
+<body>
+<div id="app">
+    <el-container>
+        <!-- 顶部菜单区域（带 logo） -->
+        <el-header>
+            <!-- logo 区域 -->
+            <div class="logo-area">
+                <i class="iconfont icon-kaifagongju"></i>
+            </div>
+
+            <!-- 顶部菜单 -->
+            <el-menu
+                    mode="horizontal"
+                    :default-active="activeMenu"
+                    background-color="#fff"
+                    text-color="#333"
+                    active-text-color="#409EFF"
+                    @select="handleMenuSelect"
+                    style="border: none; flex: 1;"
+            >
+                <!-- 顶级菜单（无子菜单） -->
+                <el-menu-item
+                        th:if="${#lists.isEmpty(menu.children)}"
+                        th:each="menu : ${menus}"
+                        th:attr="index=${menu.path}">
+                    <i th:class="${menu.icon}" class="menu-icon"></i>
+                    <span th:text="${menu.name}"></span>
+                </el-menu-item>
+
+                <!-- 顶级菜单（有子菜单） -->
+                <el-submenu
+                        th:if="${#lists.isEmpty(menu.children)} == false"
+                        th:each="menu : ${menus}"
+                        th:attr="index=${menu.id}">
+                    <template slot="title">
+                        <i th:class="${menu.icon}" class="menu-icon"></i>
+                        <span th:text="${menu.name}"></span>
+                    </template>
+                    <el-menu-item
+                            th:each="child : ${menu.children}"
+                            th:attr="index=${child.path}">
+                        <i th:class="${child.icon}" class="menu-icon"></i>
+                        <span th:text="${child.name}"></span>
+                    </el-menu-item>
+                </el-submenu>
+            </el-menu>
+        </el-header>
+
+
+        <!-- 主体内容区域 -->
+        <el-main>
+            <iframe class="main-iframe" :src="iframeSrc"></iframe>
+        </el-main>
+    </el-container>
+</div>
+
+<script th:src="@{/utils/jQuery3.6.0.min.js}"></script>
+<script th:src="@{/utils/vue2.7.16.min.js}"></script>
+<script th:src="@{/utils/elementui/ele-lib-index.js}"></script>
+<script th:inline="javascript">
+    new Vue({
+        el: '#app',
+        data() {
+            return {
+                activeMenu: [[${defaultMenuPath}]],
+                iframeSrc: [[${defaultMenuPath}]]
+            }
+        },
+        mounted() {
+            this.init();
+        },
+        methods: {
+            handleMenuSelect(path) {
+                this.iframeSrc = path;
+                this.activeMenu = path;
+            },
+            init() {
+                console.log("加载布局页面。。。。。")
+            }
+        }
+    })
+</script>
+</body>
+</html>
