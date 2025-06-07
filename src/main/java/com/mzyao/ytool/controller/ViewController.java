@@ -1,6 +1,5 @@
 package com.mzyao.ytool.controller;
 
-import com.alibaba.fastjson2.JSON;
 import com.mzyao.ytool.entity.pojo.SysMenu;
 import com.mzyao.ytool.service.SysMenuService;
 import org.springframework.stereotype.Controller;
@@ -66,11 +65,4 @@ public class ViewController {
     public String start() {
         return "/html/start";
     }
-
-    @GetMapping("demo/file/tree")
-    public String demo(){
-        return "html/demo/file-tree";
-    }
-
-
 }

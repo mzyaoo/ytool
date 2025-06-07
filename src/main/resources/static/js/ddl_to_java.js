@@ -1,172 +1,143 @@
-new Vue({
-    el: '#app',
-    data() {
-        return {
-            ddlEditor: null,
-            javaCodeEditor: null,
-            ddlText: '',
-            javaCode: '// 点击左侧预览代码',
-            formVisible: false,
-            codeEditMode: 'text/x-java',
-            form: {
-                name: '',
-                region: '',
-                date1: '',
-                date2: '',
-                delivery: false,
-                type: [],
-                resource: '',
-                desc: ''
-            },
-            fileTree: [],
-        };
-    },
-    mounted() {
-        // 初始化ddl编辑插件
-        this.ddlEditorInit();
-        // 初始化java编辑插件
-        this.javaCodeEditorInit();
-    },
-    methods: {
-        onSubmit() {
-            console.log('submit!');
-        },
-        codeChange(val) {
-            if (val.includes("xml")) {
-                this.codeEditMode = "application/xml";
-            } else {
-                this.codeEditMode = "text/x-java";
-            }
-            this.javaCodeEditorInit();
-        },
-        javaCodeEditorInit() {
+let ddlEditor, javaEditor;
 
-            // 销毁已有实例（避免重复）
-            if (this.javaCodeEditor) {
-                this.javaCodeEditor.toTextArea();
-            }
+layui.use(['layer', 'form', 'tree', 'util'], function () {
+    const layer = layui.layer;
+    const form = layui.form;
+    const tree = layui.tree;
 
-            // 初始化 CodeMirror
-            this.javaCodeEditor = CodeMirror.fromTextArea(document.getElementById("javaCode"), {
-                mode: this.codeEditMode,
-                theme: "eclipse",
-                lineNumbers: true,
-                readOnly: true,
-                extraKeys: {
-                    "Ctrl-Space": "autocomplete"
-                }
-            });
+    // 加载编辑框
+    initDdlEditor();
+    initJavaEditor();
 
-            // 让编辑器高度自适应父容器
-            this.javaCodeEditor.setSize("100%", "100%");
+    $("#generateBtn").click(function () {
+        const html = document.getElementById("generateForm").innerHTML;
 
-            // 输入时自动触发 SQL 提示
-            this.javaCodeEditor.on("inputRead", function (cm, change) {
-                if (change.text[0].match(/[\w\.]/)) {
-                    cm.showHint({hint: CodeMirror.hint.sql});
-                }
-            });
-        },
-        ddlEditorInit() {
-            // 初始化 CodeMirror
-            this.ddlEditor = CodeMirror.fromTextArea(document.getElementById("code"), {
-                mode: "text/x-sql",
-                theme: "eclipse",
-                lineNumbers: true,
-                extraKeys: {
-                    "Ctrl-Space": "autocomplete"
-                }
-            });
+        // 在此处输入 layer 的任意代码
+        layer.open({
+            type: 1, // page 层类型
+            area: ['65%', '70%'],
+            title: '代码生成配置',
+            shade: 0.6, // 遮罩透明度
+            shadeClose: true, // 点击遮罩区域，关闭弹层
+            maxmin: true, // 允许全屏最小化
+            anim: 0, // 0-6 的动画形式，-1 不开启
+            content: html,
+            btn: ['提交', '取消'], // 这里是按钮
+            yes: function (index, layero) {
 
-            // 让编辑器高度自适应父容器
-            this.ddlEditor.setSize("100%", "100%");
-
-            // 输入时自动触发 SQL 提示
-            this.ddlEditor.on("inputRead", function (cm, change) {
-                if (change.text[0].match(/[\w\.]/)) {
-                    cm.showHint({hint: CodeMirror.hint.sql});
-                }
-            });
-        },
-        toggle(node) {
-            if (node.type === 'folder') {
-                node.open = !node.open;
-            } else {
-                this.handleFileClick(node);
-            }
-        },
-        handleFileClick(fileNode) {
-            this.clearSelection(this.fileTree);
-            fileNode.selected = true;
-            this.javaCode = fileNode.javaCode;
-
-            const ext = fileNode.label.split('.').pop();
-            const mode = ext === 'xml' ? 'application/xml' : 'text/x-java';
-            this.javaCodeEditor.setOption("mode", mode);
-            this.javaCodeEditor.setValue(fileNode.javaCode);
-        },
-        clearSelection(nodes) {
-            nodes.forEach(node => {
-                node.selected = false;
-                if (node.children) this.clearSelection(node.children);
-            });
-        },
-        buildTree(data) {
-            const tree = [];
-            const map = {};
-
-            data.forEach(file => {
-                const parts = file.packagePath.split('/');
-                let current = tree;
-
-                parts.forEach((part, index) => {
-                    const pathSoFar = parts.slice(0, index + 1).join('/');
-                    if (!map[pathSoFar]) {
-                        const isFile = index === parts.length - 1;
-                        const node = {
-                            id: pathSoFar,
-                            label: part,
-                            type: isFile ? 'file' : 'folder',
-                            open: !isFile,
-                            selected: false,
-                            children: [],
-                            ...(isFile ? {javaCode: file.javaCode} : {})
-                        };
-                        map[pathSoFar] = node;
-                        current.push(node);
+                let formData = {};
+                $.ajax({
+                    type: "POST",
+                    url: "/generate/ddlToJava",
+                    data: JSON.stringify(formData),
+                    contentType: "application/json",
+                    success: function (res) {
+                        if (res.code === 0) {
+                            const {treeData, codeMap} = buildTree(res.data);
+                            // 渲染树
+                            tree.render({
+                                elem: '#fileTree',
+                                data: treeData,
+                                click: function (obj) {
+                                    const code = codeMap[obj.data.id];
+                                    if (code !== undefined) {
+                                        const ext = obj.data.id.split('.').pop();
+                                        let mode = 'text/plain';
+                                        if (ext === 'java') mode = 'text/x-java';
+                                        else if (ext === 'xml') mode = 'application/xml';
+                                        javaEditor.setOption('mode', mode);
+                                        javaEditor.setValue(code);
+                                    }
+                                }
+                            });
+                        } else {
+                            layer.msg("生成失败：" + res.msg);
+                        }
+                        layer.close(index);
+                    },
+                    error: function () {
+                        layer.msg("请求失败！");
+                        layer.close(index);
                     }
-                    current = map[pathSoFar].children;
                 });
-            });
+            },
+            btn2: function (index) {
+                layer.close(index); // 取消按钮关闭
+            },
+            success: function () {
+                form.render();
+            }
+        });
+    });
 
-            return tree;
-        },
-        generateHandler() {
-            this.formVisible = true;
+    form.on('submit(submitConfig)', function (data) {
+        return false;
+    });
 
-        },
-        copyCode() {
-
-        },
-        generateFormSubmit(){
-            $.ajax({
-                type: "POST",
-                url: "/generate/ddlToJava",
-                data: JSON.stringify(this.form),
-                contentType:"application/json",
-                success: result => {
-                    if (result.code === 0){
-                        console.log(JSON.stringify(result.data))
-                        this.fileTree = this.buildTree(result.data);
-                    }
-                },
-                error: function (e) {
-                    console.log(e.message);
-                }
-            });
-
-            // 关闭弹窗
-            this.formVisible = false;
-        }
-    }
 });
+
+// 将扁平路径转为树结构
+function buildTree(data) {
+    const root = {};
+    const codeMap = {};
+
+    data.forEach(item => {
+        const parts = item.packagePath.split('/');
+        codeMap[item.packagePath] = item.javaCode;
+
+        let current = root;
+        parts.forEach((part, idx) => {
+            if (!current[part]) {
+                current[part] = {__children: {}, __isFile: idx === parts.length - 1};
+            }
+            current = current[part].__children;
+        });
+    });
+
+    function toLayuiTree(node, path = '') {
+        return Object.entries(node).map(([key, value]) => {
+            const fullPath = path ? `${path}/${key}` : key;
+            const isFile = value.__isFile;
+            return {
+                title: key,
+                id: fullPath,
+                spread: true,
+                icon: isFile ? 'layui-icon-file' : 'layui-icon-folder',
+                children: isFile ? [] : toLayuiTree(value.__children, fullPath)
+            };
+        });
+    }
+
+    return {
+        treeData: toLayuiTree(root),
+        codeMap
+    };
+}
+
+function initDdlEditor() {
+    ddlEditor = CodeMirror.fromTextArea(document.getElementById("code"), {
+        mode: "text/x-sql",
+        theme: "eclipse",
+        lineNumbers: true,
+        extraKeys: {"Ctrl-Space": "autocomplete"}
+    });
+
+    ddlEditor.setSize("100%", "300px");
+
+    ddlEditor.on("inputRead", function (cm, change) {
+        if (change.text[0].match(/[\w\.]/)) {
+            cm.showHint({hint: CodeMirror.hint.sql});
+        }
+    });
+}
+
+function initJavaEditor() {
+    javaEditor = CodeMirror.fromTextArea(document.getElementById("javaCode"), {
+        mode: "text/x-java",
+        theme: "eclipse",
+        lineNumbers: true,
+        readOnly: true
+    });
+    javaEditor.setSize("100%", "300px");
+
+}

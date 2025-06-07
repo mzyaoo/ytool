@@ -10,81 +10,7 @@
     <link rel="stylesheet" th:href="@{/utils/codemirror/theme/eclipse.css}">
     <link rel="stylesheet" th:href="@{/utils/codemirror/hint/show-hint.css}">
     <link rel="stylesheet" th:href="@{/utils/icon/iconfont.css}">
-    <style>
-        .layui-container {
-            height: 100vh;
-        }
-
-        .ddl-code-wrapper {
-            height: 80vh;
-            display: flex;
-            flex-direction: column;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .java-code-wrapper {
-            height: 80vh;
-            display: flex;
-            flex-direction: column;
-            position: relative;
-        }
-
-        /* 让 CodeMirror 编辑器铺满容器 */
-        .CodeMirror {
-            height: 100% !important;
-            flex: 1;
-            background-color: #f7f7f7 !important;
-        }
-
-        .title {
-            font-size: 18px;
-            font-weight: bold;
-            padding-left: 10px;
-        }
-
-        .button-div {
-            margin-top: 40px;
-            float: right;
-        }
-
-        .copy-btn {
-            position: absolute;
-            right: 10px;
-            padding: 6px 12px;
-            font-size: 12px;
-            background-color: #f7f7f7;
-            color: #5d5d5d;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            z-index: 10;
-            display: flex;
-            justify-content: center;
-        }
-
-        /*文件树*/
-        .file-tree-root, .file-tree-root ul {
-            list-style: none;
-            padding-left: 20px;
-        }
-
-        .file-tree-root li {
-            cursor: pointer;
-        }
-
-        .file-tree-root .selected {
-            background-color: #eef;
-        }
-
-        .file-tree-root i {
-            margin-right: 6px;
-        }
-
-        .file-tree-root ul {
-            margin-left: 20px;
-        }
-    </style>
+    <link rel="stylesheet" th:href="@{/css/ddl/index.css}">
 </head>
 <body>
 
@@ -130,7 +56,7 @@
                 </div>
                 <div class="layui-col-xs6">
                     <div class="grid-demo grid-demo-bg1">
-                        <ul id="file-tree" class="file-tree-root">树文件结构</ul>
+                        <div id="fileTree" class="layui-tree" lay-filter="fileTree"></div>
                     </div>
                 </div>
                 <div class="layui-col-xs6">
@@ -148,6 +74,193 @@
     </div>
 </div>
 
+<script type="text/html" id="generateForm">
+    <form class="layui-form layui-form-pane" lay-filter="configForm" style="padding: 20px;">
+        <div style="display: flex;align-items: center;padding-bottom: 15px">
+            <div style="width: 4px; height: 20px; background: rgb(255, 146, 0);"></div>
+            <div style="font-size: 14px;font-weight: 300;padding-left: 10px;">基础配置</div>
+        </div>
+
+        <div class="layui-form-item" style="width: 60%">
+            <label class="layui-form-label">包名</label>
+            <div class="layui-input-block">
+                <input type="text" name="title" autocomplete="off" placeholder="请输入" lay-verify="required"
+                       class="layui-input" value="com/example">
+            </div>
+        </div>
+
+        <div class="layui-form-item" style="width: 60%">
+            <label class="layui-form-label">作者</label>
+            <div class="layui-input-block">
+                <input type="text" name="title" autocomplete="off" placeholder="请输入" lay-verify="required"
+                       class="layui-input" value="system">
+            </div>
+        </div>
+
+        <div class="layui-form-item" style="width: 60%">
+            <label class="layui-form-label">接口前缀：</label>
+            <div class="layui-input-block">
+                <input type="text" name="title" autocomplete="off" placeholder="请输入" lay-verify="required"
+                       class="layui-input" value="/api">
+            </div>
+        </div>
+
+        <div style="display: flex;align-items: center;padding-bottom: 15px">
+            <div style="width: 4px; height: 20px; background: rgb(255, 146, 0);"></div>
+            <div style="font-size: 14px;font-weight: 300;padding-left: 10px;">方法配置</div>
+        </div>
+
+        <div class="layui-row">
+            <div class="layui-col-xs4">
+                <div class="grid-demo grid-demo-bg1">
+                    <div class="layui-form-item">
+                        <div>分页查询:</div>
+                        <div>
+                            <input type="checkbox" name="open" lay-skin="switch" lay-filter="switchTest" title="ON|OFF">
+                        </div>
+                    </div>
+
+                    <div class="layui-form-item" style="margin-bottom:3px">
+                        <label class="layui-form-label">方法名称:</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="title" autocomplete="off" placeholder="请输入"
+                                   lay-verify="required" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">请求路径:</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="title" autocomplete="off" placeholder="请输入"
+                                   lay-verify="required" class="layui-input">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-col-xs4">
+                <div class="grid-demo">
+                    <div class="layui-form-item">
+                        <div>列表查询:</div>
+                    </div>
+
+                    <div class="layui-form-item" style="margin-bottom:3px">
+                        <label class="layui-form-label">方法名称:</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="title" autocomplete="off" placeholder="请输入"
+                                   lay-verify="required" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">请求路径:</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="title" autocomplete="off" placeholder="请输入"
+                                   lay-verify="required" class="layui-input">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-col-xs4">
+                <div class="grid-demo grid-demo-bg1">
+                    <div class="layui-form-item">
+                        <div>查询详情:</div>
+                    </div>
+
+                    <div class="layui-form-item" style="margin-bottom:3px">
+                        <label class="layui-form-label">方法名称:</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="title" autocomplete="off" placeholder="请输入"
+                                   lay-verify="required" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">请求路径:</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="title" autocomplete="off" placeholder="请输入"
+                                   lay-verify="required" class="layui-input">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-col-xs4">
+                <div class="grid-demo grid-demo-bg1">
+                    <div class="layui-form-item">
+                        <div>新增:</div>
+                    </div>
+
+                    <div class="layui-form-item" style="margin-bottom:3px">
+                        <label class="layui-form-label">方法名称:</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="title" autocomplete="off" placeholder="请输入"
+                                   lay-verify="required" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">请求路径:</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="title" autocomplete="off" placeholder="请输入"
+                                   lay-verify="required" class="layui-input">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-col-xs4">
+                <div class="grid-demo grid-demo-bg1">
+                    <div class="layui-form-item">
+                        <div>修改:</div>
+                    </div>
+
+                    <div class="layui-form-item" style="margin-bottom:3px">
+                        <label class="layui-form-label">方法名称:</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="title" autocomplete="off" placeholder="请输入"
+                                   lay-verify="required" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">请求路径:</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="title" autocomplete="off" placeholder="请输入"
+                                   lay-verify="required" class="layui-input">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-col-xs4">
+                <div class="grid-demo grid-demo-bg1">
+                    <div class="layui-form-item">
+                        <div>删除:</div>
+                    </div>
+
+                    <div class="layui-form-item" style="margin-bottom:3px">
+                        <label class="layui-form-label">方法名称:</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="title" autocomplete="off" placeholder="请输入"
+                                   lay-verify="required" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">请求路径:</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="title" autocomplete="off" placeholder="请输入"
+                                   lay-verify="required" class="layui-input">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div style="display: flex;align-items: center;padding-bottom: 15px">
+            <div style="width: 4px; height: 20px; background: rgb(255, 146, 0);"></div>
+            <div style="font-size: 14px;font-weight: 300;padding-left: 10px;">更多选项</div>
+        </div>
+
+        <div style="display: flex;align-items: center;padding-bottom: 15px">
+            <div style="width: 4px; height: 20px; background: rgb(255, 146, 0);"></div>
+            <div style="font-size: 14px;font-weight: 300;padding-left: 10px;">集成依赖</div>
+        </div>
+    </form>
+</script>
+
+
 <!-- JS 引入 -->
 <script th:src="@{/utils/jQuery3.6.0.min.js}"></script>
 <script th:src="@{/utils/layui/layui.js}"></script>
@@ -157,73 +270,7 @@
 <script th:src="@{/utils/codemirror/mode/xml.js}"></script>
 <script th:src="@{/utils/codemirror/hint/show-hint.js}"></script>
 <script th:src="@{/utils/codemirror/hint/sql-hint.js}"></script>
-
-<script>
-    let ddlEditorDom;
-
-    let javaCodeEditorDom;
-
-    layui.use(['form', 'layer'], function () {
-
-        // 绑定生成按钮点击事件
-        const $ = layui.$;
-
-        // 初始化编辑
-        initDdlEditor();
-        initJavaEditor();
-
-        $('#generateBtn').on('click', function () {
-
-        });
-
-
-        function initDdlEditor() {
-            ddlEditorDom = CodeMirror.fromTextArea(document.getElementById("code"), {
-                mode: "text/x-sql",
-                theme: "eclipse",
-                lineNumbers: true,
-                extraKeys: {
-                    "Ctrl-Space": "autocomplete"
-                }
-            });
-
-            // 让编辑器高度自适应父容器
-            ddlEditorDom.setSize("100%", "100%");
-            // 输入时自动触发 SQL 提示
-            ddlEditorDom.on("inputRead", function (cm, change) {
-                if (change.text[0].match(/[\w\.]/)) {
-                    cm.showHint({hint: CodeMirror.hint.sql});
-                }
-            });
-        }
-
-        function initJavaEditor() {
-
-            // 初始化 CodeMirror
-            javaCodeEditorDom = CodeMirror.fromTextArea(document.getElementById("javaCode"), {
-                mode: "text/x-java",
-                theme: "eclipse",
-                lineNumbers: true,
-                extraKeys: {
-                    "Ctrl-Space": "autocomplete"
-                }
-            });
-
-            // 让编辑器高度自适应父容器
-            javaCodeEditorDom.setSize("100%", "100%");
-
-            // 输入时自动触发 SQL 提示
-            javaCodeEditorDom.on("inputRead", function (cm, change) {
-                if (change.text[0].match(/[\w\.]/)) {
-                    cm.showHint({hint: CodeMirror.hint.sql});
-                }
-            });
-        }
-
-    });
-
-
-</script>
+<script th:src="@{/js/ddl_to_java.js}"></script>
 
 </body>
 </html>
