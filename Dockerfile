@@ -1,5 +1,5 @@
 # 使用官方 OpenJDK 8 JRE 基础镜像（体积小，适合部署）
-FROM openjdk:8-jre-alpine
+FROM openjdk:8u102-jdk
 
 # 设置容器中的工作目录
 WORKDIR /app
